@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 17:33:15 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/11/12 17:33:56 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/11/21 22:19:35 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,3 +38,7 @@ typedef struct {
     uint32_t colors_used;       // Number of colors in the color palette (0 for default)
     uint32_t colors_important;  // Important colors (0 = all)
 } BMPInfoHeader;
+
+#pragma pack(pop) // End packed structure
+
+void save_sprite_to_bmp(const char *filename, uint32_t *buffer, int width, int height);

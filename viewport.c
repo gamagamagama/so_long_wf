@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 16:47:38 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/11/20 18:19:05 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/11/21 22:17:15 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,25 +16,49 @@ void draw_square(mlx_image_t *img, vp_t *data)
         printf("[DEBUG] Drawing square at (%f, %f) with size %d\n", data->vp_x, data->vp_y, data->vp_size);
 
 	data->window->color = 0x00FF00FF;
-	int a;
-	int b;
-
-	a = 0;
-	while (a < data->vp_size) // Iterate for the square size in x-axis
+	int row;
+	int col;
+    int current_x = data->vp_x;
+    int current_y = data->vp_y;
+	row = 0;
+	while (row < data->vp_size) // Iterate for the square size in x-axis
 	{
-		b = 0; // Reset `b` for each row
-		while (b < data->vp_size) // Iterate for the square size in y-axis
+       // printf("[DEBUG] size width (%d)\n", a);
+		col = 0; // Reset `b` for each row
+		while (col < data->vp_size) // Iterate for the square size in y-axis
 		{
-			if ((data->vp_x + a) < img->width && (data->vp_y + b) < img->height)
+            current_x = row;
+            current_y = col;
+          // printf("[DEBUG] data vp_x+a(%f)(%f) < img->width(%d) a\n",data->vp_x, a, img->width);
+			//getchar(); //[DEBUG]
+            if (current_x >= 0 && current_x < data->window->image->width && current_y >= 0 && current_y < data->window->image->height );
 			{
-				mlx_put_pixel(img, data->vp_x + a, data->vp_y + b, data->window->color);
-			}
-			b++;
-		}
-		a++;
-	}
-        printf("[DEBUG] Square drawn successfully\n");
 
+               // printf("[DEBUG] put pixel at x (%f)\n and  y (%f)", data->vp_x+a, data->vp_y + b );
+			//	getchar(); //[DEBUG]
+                mlx_put_pixel(img, current_x, current_y, data->window->color);
+               // printf("[DEBUG] Square is drawing\n");
+			}
+			col++;
+		}
+		row++;
+        //getchar(); //[DEBUG]
+	}
+    printf("[DEBUG] Square drawn\n");
+
+}
+void init_complex_data(complex_data_t *compdata)
+{
+    compdata->delta = M_PI / 4;
+    compdata->wave_amplitude = 0;
+    compdata->wave_freq = 0;
+    compdata->spiral_fact = 0;
+    compdata->scale_fact = 0;
+    compdata->depth = 0;
+    compdata->A = 0;
+    compdata->B = 0;
+    compdata->a = 0;
+    compdata->b = 0;
 }
 
 void init_viewport(vp_t *viewport)
@@ -62,18 +86,18 @@ void update_vp(vp_t *viewport)
 {
         printf("[DEBUG] Updating viewport at (%f, %f) with size %d\n", viewport->vp_x, viewport->vp_y, viewport->vp_size);
 
-    vp_t *temp;
+    // vp_t *viewport;
     int centerX;
     int centerY;
-    temp = viewport;
+    // viewport = viewport;
         printf("[DEBUG] Deleting old image\n");
 
-    mlx_delete_image(temp->window->mlx, temp->window->image);
-    temp->window->image = mlx_new_image(viewport->window->mlx, viewport->vp_size, viewport->vp_size);
+    mlx_delete_image(viewport->window->mlx, viewport->window->image);
+    viewport->window->image = mlx_new_image(viewport->window->mlx, viewport->vp_size, viewport->vp_size);
     // centerX = viewport->vp_size/2;
     // centerY = viewport->vp_size/2;
-    draw_square(temp->window->image, temp);
-    mlx_image_to_window(temp->window->mlx, temp->window->image, temp->vp_x, temp->vp_y);
+    draw_square(viewport->window->image, viewport);
+    mlx_image_to_window(viewport->window->mlx, viewport->window->image, viewport->vp_x, viewport->vp_y);
         printf("[DEBUG] Viewport updated successfully\n");
 
 }
@@ -82,24 +106,42 @@ void key_hook(mlx_key_data_t keydata, void *param)
 {
     vp_t *data = (vp_t *)param;
     printf("[DEBUG] Key press detected: key = %d, action = %d\n", keydata.key, keydata.action);
-    if (keydata.key == MLX_KEY_W && keydata.action == MLX_PRESS)
+    if (keydata.key == MLX_KEY_W && (keydata.action == MLX_PRESS || keydata.action == 2))
 	{
-		data->vp_x += 1;
+        if (keydata.action == 2)
+        {
+            data->vp_y -= 1;
+        }
+        
+		data->vp_y -= 5;
 		
 	}
-	if (keydata.key == MLX_KEY_S && keydata.action == MLX_PRESS)
+	if (keydata.key == MLX_KEY_S && (keydata.action == MLX_PRESS || keydata.action == 2))
 	{
-		data->vp_x -= 1;
+
+        if (keydata.action == 2)
+        {
+            data->vp_y += 1;
+        }
+		data->vp_y += 5;
 		
 	}
-	if (keydata.key == MLX_KEY_A && keydata.action == MLX_PRESS)
+	if (keydata.key == MLX_KEY_A && (keydata.action == MLX_PRESS || keydata.action == 2))
 	{
-		data->vp_y -= 1;
+         if (keydata.action == 2)
+        {
+            data->vp_x -= 1;
+        }
+		data->vp_x -= 5;
 		
 	}
-	if (keydata.key == MLX_KEY_D && keydata.action == MLX_PRESS)
+	if (keydata.key == MLX_KEY_D && (keydata.action == MLX_PRESS || keydata.action == 2))
 	{
-		data->vp_y += 1;
+         if (keydata.action == 2)
+        {
+            data->vp_x += 1;
+        }
+		data->vp_x += 5;
 	}
 	data->vp_x = fmax(0, fmin(data->vp_x, data->window->win_width - data->vp_size));
     data->vp_y = fmax(0, fmin(data->vp_y, data->window->win_height - data->vp_size));
@@ -113,15 +155,17 @@ int main()
     vp_t *viewport;
     tst_node_t *window;
     mlx_image_t *viewport_overlay;
+    complex_data_t *compdata;
 
     printf("[DEBUG] Initializing window and viewport\n");
+    compdata = malloc(sizeof(complex_data_t));
     viewport = malloc(sizeof(vp_t));
     window = malloc(sizeof(tst_node_t));
     init_window(window);
     init_viewport(viewport);
 
 
-    viewport_overlay = viewport->window->image;
+    //viewport_overlay = viewport->window->image;
     viewport->window->mlx = mlx_init(viewport->window->win_width, viewport->window->win_height, "void", 0);
     if (!(viewport || window))
     {
@@ -130,8 +174,13 @@ int main()
         return(EXIT_FAILURE);
     }
     printf("[DEBUG] Creating initial image\n");
-    viewport_overlay = mlx_new_image(window->mlx, viewport->vp_size, viewport->vp_size);
-    viewport->window->image = viewport_overlay;
+    viewport->window->image = mlx_new_image(window->mlx, viewport->vp_size, viewport->vp_size);
+    if (!viewport->window->image)
+    {
+        printf("[DEBUG] image not created\n");
+    }
+    
+   // viewport->window->image = viewport_overlay;
     update_vp(viewport);
     //draw_square(viewport->window->image, viewport);
 
