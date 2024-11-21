@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 19:03:24 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/11/21 17:06:27 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/11/21 22:18:26 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void draw_thick_line(mlx_image_t *img, int x0, int y0, int x1, int y1, int thick
 // Function to draw the complex pattern centered on the viewport
 void drawComplexPattern(mlx_image_t *img, int centerX, int centerY, int thickness) {
     int prevX = centerX, prevY = centerY;
-   
+    mlx_t *mlx = (mlx_t *)thickness;
 
     for (double t = 0; t < 2 * M_PI * depth; t += 0.05) {
         int x = centerX + (int)(scalingFactor * ((A + t * spiralFactor) * sin(a * t + delta) + waveAmplitude * sin(waveFrequency * t)*tan(waveFrequency)*M_PI));
@@ -91,6 +91,7 @@ void drawComplexPattern(mlx_image_t *img, int centerX, int centerY, int thicknes
             {
                 x = prevX;
                 y = prevY;
+                updateViewport(mlx, thickness/2);   
             }
             
         }
