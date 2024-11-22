@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   viewport.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
+/*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 16:47:38 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/11/22 07:46:44 by matus            ###   ########.fr       */
+/*   Updated: 2024/11/22 07:51:37 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,15 +64,15 @@ void init_complex_data(complex_data_t *compdata)
 
 void init_graph_data(graph_data_t *graph_data)
 {
-    graph_data->delta_x = 1;
-	graph_data->delta_y = 1;
+    graph_data->delta_x = 0;
+	graph_data->delta_y = 0;
 	graph_data->start_x = 0;
 	graph_data->start_y = 0;
 	graph_data->end_x = 0;
 	graph_data->end_y = 0;
-	graph_data->step_x = 1;
-	graph_data->step_y = 1;
-	graph_data->error = 1;
+	graph_data->step_x = 0;
+	graph_data->step_y = 0;
+	graph_data->error = 0;
 }
 
 void init_viewport(vp_t *viewport, tst_node_t *window, complex_data_t *compdata, graph_data_t *graphdata)
