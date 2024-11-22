@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 16:47:38 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/11/22 07:51:37 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/11/22 07:52:07 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -249,7 +249,7 @@ void bresen_line(mlx_image_t *img, graph_data_t *graph_data, vp_t *viewport)
     {
         graph_data->error = graph_data->delta_y - graph_data->delta_x;
     }
-
+}
 
 int main() {
     vp_t *viewport = NULL;
