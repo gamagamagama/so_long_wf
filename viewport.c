@@ -6,20 +6,20 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 16:47:38 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/11/21 22:17:15 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/11/22 06:49:25 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "lost_in_void.h"
-void draw_square(mlx_image_t *img, vp_t *data)
+void draw_square(mlx_image_t *img, int current_x, int current_y ,vp_t *data)
 {
-        printf("[DEBUG] Drawing square at (%f, %f) with size %d\n", data->vp_x, data->vp_y, data->vp_size);
+       // printf("[DEBUG] Drawing square at (%f, %f) with size %d\n", data->vp_x, data->vp_y, data->vp_size);
 
-	data->window->color = 0x00FF00FF;
+	//data->window->color = 0x00FF00FF;
 	int row;
 	int col;
-    int current_x = data->vp_x;
-    int current_y = data->vp_y;
+    //current_x = data->vp_x;
+    //current_y = data->vp_y;
 	row = 0;
 	while (row < data->vp_size) // Iterate for the square size in x-axis
 	{
@@ -31,7 +31,7 @@ void draw_square(mlx_image_t *img, vp_t *data)
             current_y = col;
           // printf("[DEBUG] data vp_x+a(%f)(%f) < img->width(%d) a\n",data->vp_x, a, img->width);
 			//getchar(); //[DEBUG]
-            if (current_x >= 0 && current_x < data->window->image->width && current_y >= 0 && current_y < data->window->image->height );
+            if (current_x >= 0 && current_x < data->window->image->width && current_y >= 0 && current_y < data->window->image->height )
 			{
 
                // printf("[DEBUG] put pixel at x (%f)\n and  y (%f)", data->vp_x+a, data->vp_y + b );
@@ -44,31 +44,47 @@ void draw_square(mlx_image_t *img, vp_t *data)
 		row++;
         //getchar(); //[DEBUG]
 	}
-    printf("[DEBUG] Square drawn\n");
+  //  printf("[DEBUG] Square drawn\n");
 
 }
 void init_complex_data(complex_data_t *compdata)
 {
     compdata->delta = M_PI / 4;
-    compdata->wave_amplitude = 0;
-    compdata->wave_freq = 0;
-    compdata->spiral_fact = 0;
-    compdata->scale_fact = 0;
-    compdata->depth = 0;
-    compdata->A = 0;
-    compdata->B = 0;
-    compdata->a = 0;
-    compdata->b = 0;
+    compdata->wave_amplitude = 10;
+    compdata->wave_freq = 3;
+    compdata->spiral_fact = 1;
+    compdata->scale_fact = 1;
+    compdata->depth = 3;
+    compdata->A = 100;
+    compdata->B = 80;
+    compdata->a = 3;
+    compdata->b = 2;
 }
 
-void init_viewport(vp_t *viewport)
+void init_graph_data(graph_data_t *graph_data)
+{
+    graph_data->delta_x = 1;
+	graph_data->delta_y = 1;
+	graph_data->start_x = 0;
+	graph_data->start_y = 0;
+	graph_data->end_x = 0;
+	graph_data->end_y = 0;
+	graph_data->step_x = 1;
+	graph_data->step_y = 1;
+	graph_data->error = 1;
+}
+
+void init_viewport(vp_t *viewport, tst_node_t *window, complex_data_t *compdata, graph_data_t *graphdata)
 {
      printf("[DEBUG] Initializing viewport...\n");
-    tst_node_t *window;
+
     viewport->window = window;
+    viewport->graph_data = graphdata;
+    viewport->complex_data = compdata;
     viewport->vp_size = 50;
     viewport->vp_x = (viewport->window->win_width - viewport->vp_size) / 2;
 	viewport->vp_y = (viewport->window->win_height - viewport->vp_size) / 2;
+    viewport->window->set = 0;
         printf("[DEBUG] Viewport initialized: vp_x = %f, vp_y = %f, vp_size = %d\n", viewport->vp_x, viewport->vp_y, viewport->vp_size);
 
 }
@@ -82,6 +98,54 @@ void init_window(tst_node_t *window)
         printf("[DEBUG] Window initialized: win_width = %d, win_height = %d \n", window->win_height, window->win_width);
 
 }
+// void update_data_cp(mlx_image_t *img, int centerX, int centerY, int thickness)
+// {
+//     vp_t *data;
+//     int prevX = centerX;
+//     int prevY = centerY;
+//     int x;
+//     int y = 0;
+//     // mlx_t *mlx = (mlx_t *)thickness;
+//     data->complex_data->time = 0;
+//     while (data->complex_data->time < 2 * M_PI * data->complex_data->depth)
+//     {
+//         data->complex_data->time += 0.05;
+//     }
+//     x =  x = centerX + (int)(data->complex_data->scale_fact * ((data->complex_data->A +data->complex_data->time * data->complex_data->spiral_fact) * sin(data->complex_data->a * data->complex_data->time + data->complex_data->delta) + data->complex_data->wave_amplitude * sin(data->complex_data->wave_freq * data->complex_data->time) * tan(data->complex_data->wave_freq)*M_PI));
+//     bresen_line(data->graph_data, data);
+//     prevX = x;
+//     prevY = y;
+// }
+
+void drawComplexPattern(mlx_image_t *img, int centerX, int centerY, vp_t *viewport) {
+    int prevX = centerX, prevY = centerY;
+    int x, y;
+
+   complex_data_t *data;
+   graph_data_t *graph_data;
+     
+    data = viewport->complex_data;
+    graph_data = viewport->graph_data;
+
+//    prevX = graph_data->start_x;
+    //prevY = graph_data->start_y;
+    printf("[DEBUG] COmplex Patern\n");
+    for (double t = 0; t < 2 * M_PI * data->depth; t += 0.05) {
+        x = centerX + (int)(data->scale_fact * ((data->A + t * data->spiral_fact) * sin(data->a * t + data->delta) + data->wave_amplitude * sin(data->wave_freq * t)*tan(data->wave_freq))*M_PI);
+        y = centerY + (int)(data->scale_fact * ((data->B + t * data->spiral_fact) * cos(data->b * t) + data->wave_amplitude * cos(data->wave_freq * t)* tan(data->wave_freq)* M_PI));
+printf("[DEBUG] COmplex Patern before bresen %d, %d and img %d, %d\n", x, y, img->width, img->height);
+        if (x >= 0 && x > img->width && y >= 0 && y > img->height) {
+            bresen_line(img, graph_data, viewport);  // Draw thick line
+            printf("[DEBUG] COmplex Patern after bresen %d, %d\n", img->width, img->height);
+        }
+        graph_data->end_x = x;
+        graph_data->end_y = y;
+       
+        prevX = x;
+        prevY = y;
+    }
+}
+
 void update_vp(vp_t *viewport)
 {
         printf("[DEBUG] Updating viewport at (%f, %f) with size %d\n", viewport->vp_x, viewport->vp_y, viewport->vp_size);
@@ -96,7 +160,16 @@ void update_vp(vp_t *viewport)
     viewport->window->image = mlx_new_image(viewport->window->mlx, viewport->vp_size, viewport->vp_size);
     // centerX = viewport->vp_size/2;
     // centerY = viewport->vp_size/2;
-    draw_square(viewport->window->image, viewport);
+    printf("[DEBUG] change color\n");
+    viewport->window->color = 0x00FF00FF;
+    //draw_square(viewport->window->image,viewport->vp_x, viewport->vp_y, viewport);
+   // bresen_line(viewport->graph_data, viewport);
+   // printf("[DEBUG] bresen line works\n");
+   //update_data_cp(viewport->window->image, viewport->vp_x, viewport->vp_y, 0.1);
+   //  printf("[DEBUG] DrawCP 01 \n");
+    drawComplexPattern(viewport->window->image, viewport->graph_data->start_x, viewport->graph_data->start_y, viewport);
+    printf("[DEBUG] DrawCP 02\n");
+    //getchar();
     mlx_image_to_window(viewport->window->mlx, viewport->window->image, viewport->vp_x, viewport->vp_y);
         printf("[DEBUG] Viewport updated successfully\n");
 
@@ -149,55 +222,122 @@ void key_hook(mlx_key_data_t keydata, void *param)
 	update_vp(data);
 }
 
-
-int main()
+void bresen_line(mlx_image_t *img, graph_data_t *graph_data, vp_t *viewport)
 {
-    vp_t *viewport;
-    tst_node_t *window;
-    mlx_image_t *viewport_overlay;
-    complex_data_t *compdata;
+    printf("[DEBUG] Bresen line\n");
+      printf("[DEBUG] bresen data delta %d, %d\n", graph_data->delta_x, graph_data->delta_y);
+      printf("[DEBUG] bresen data start end X %d, %d\n", graph_data->start_x, graph_data->end_x);
+      printf("[DEBUG] bresen data start end Y %d, %d\n", graph_data->start_y, graph_data->end_y);
+      printf("[DEBUG] bresen data step XY %d, %d\n", graph_data->step_x, graph_data->step_y);
+      
+      
+      
 
-    printf("[DEBUG] Initializing window and viewport\n");
-    compdata = malloc(sizeof(complex_data_t));
-    viewport = malloc(sizeof(vp_t));
-    window = malloc(sizeof(tst_node_t));
-    init_window(window);
-    init_viewport(viewport);
-
-
-    //viewport_overlay = viewport->window->image;
-    viewport->window->mlx = mlx_init(viewport->window->win_width, viewport->window->win_height, "void", 0);
-    if (!(viewport || window))
+    graph_data->delta_x = abs(graph_data->end_x - graph_data->start_x);
+    graph_data->delta_y = abs(graph_data->end_y - graph_data->start_y);
+    graph_data->step_x = 1;
+    graph_data->step_y = 1;
+        if (graph_data->start_x >= graph_data->end_x)
+        {
+            graph_data->step_x = -1;
+        }
+        if (graph_data->start_y >= graph_data->end_y)
+        {
+            graph_data->step_y = -1;
+        }
+    graph_data->error = graph_data->delta_x - graph_data->delta_y;
+    while (1)
     {
-        free(viewport);
-        free(window);
-        return(EXIT_FAILURE);
-    }
-    printf("[DEBUG] Creating initial image\n");
-    viewport->window->image = mlx_new_image(window->mlx, viewport->vp_size, viewport->vp_size);
-    if (!viewport->window->image)
-    {
-        printf("[DEBUG] image not created\n");
+        viewport->window->color = 0x0000FFFF;
+        draw_square(img,graph_data->start_x,graph_data->start_y ,viewport);
+        if (graph_data->start_x == graph_data->end_x && graph_data->start_y == graph_data->end_y)
+        {
+            break;
+        }
+        viewport->window->set = graph_data->error * 2;
+        if (viewport->window->set > (-graph_data->delta_y))
+        {
+            graph_data->error -= graph_data->delta_y;
+            graph_data->start_x += graph_data->step_x;
+        }
+        if (viewport->window->set < graph_data->delta_x)
+        {
+            graph_data->error += graph_data->delta_x;
+            graph_data->start_y += graph_data->step_y;
+        }
+        
     }
     
-   // viewport->window->image = viewport_overlay;
-    update_vp(viewport);
-    //draw_square(viewport->window->image, viewport);
+        
+}
 
+int main() {
+    vp_t *viewport = NULL;
+    tst_node_t *window = NULL;
+    complex_data_t *compdata = NULL;
+    graph_data_t *graph_data = NULL;
+  //  mlx_image_t *img = NULL;
+
+    // Allocate memory
+    viewport = malloc(sizeof(vp_t));
+    window = malloc(sizeof(tst_node_t));
+    compdata = malloc(sizeof(complex_data_t));
+    graph_data = malloc(sizeof(graph_data_t));
+
+    if (!viewport || !window || !compdata || !graph_data) {
+        printf("[DEBUG] Memory allocation failed\n");
+        free(viewport);
+        free(window);
+        free(compdata);
+        free(graph_data);
+        return EXIT_FAILURE;
+    }
+
+   // Initialize structures
+    init_window(window);
+    init_complex_data(compdata);
+    init_graph_data(graph_data);
+    init_viewport(viewport, window, compdata, graph_data);
+    
+    
+    printf("[DEBUG] Linking\n");
+    viewport->graph_data = graph_data; // Link graph data
+    viewport->window = window;        // Link window
+
+    // Initialize MLX window
+    window->mlx = mlx_init(window->win_width, window->win_height, "void", 0);
+    if (!window->mlx) {
+        printf("[DEBUG] MLX initialization failed\n");
+        free(viewport);
+        free(window);
+        free(compdata);
+        free(graph_data);
+        return EXIT_FAILURE;
+    }
+
+    printf("[DEBUG] Creating initial image\n");
+    window->image = mlx_new_image(window->mlx, viewport->vp_size, viewport->vp_size);
+    if (!window->image) {
+        printf("[DEBUG] Failed to create image\n");
+    }
+
+   update_vp(viewport); // Update viewport and draw initial content
     
     printf("[DEBUG] Setting up key hook\n");
     mlx_key_hook(window->mlx, key_hook, viewport);
 
     printf("[DEBUG] Starting MLX event loop\n");
     mlx_loop(window->mlx);
-    
+
+    // Cleanup resources
     printf("[DEBUG] Cleaning up resources\n");
-    mlx_delete_image(window->mlx, viewport_overlay);
+    mlx_delete_image(window->mlx, window->image);
     mlx_terminate(window->mlx);
     free(viewport);
     free(window);
-    
-    printf("[DEBUG] Program exited successfully\n");
-    return (EXIT_SUCCESS);
+    free(compdata);
+    free(graph_data);
 
+    printf("[DEBUG] Program exited successfully\n");
+    return EXIT_SUCCESS;
 }
