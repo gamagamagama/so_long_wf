@@ -6,7 +6,7 @@
 /*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 16:47:38 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/11/22 07:46:44 by matus            ###   ########.fr       */
+/*   Updated: 2024/11/22 14:32:35 by matus            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,8 @@ void init_graph_data(graph_data_t *graph_data)
 	graph_data->step_x = 1;
 	graph_data->step_y = 1;
 	graph_data->error = 1;
+    graph_data->color = 0xFFFFFFFF;
+    graph_data->thickness = 1;
 }
 
 void init_viewport(vp_t *viewport, tst_node_t *window, complex_data_t *compdata, graph_data_t *graphdata)
@@ -82,7 +84,7 @@ void init_viewport(vp_t *viewport, tst_node_t *window, complex_data_t *compdata,
     viewport->window = window;
     viewport->graph_data = graphdata;
     viewport->complex_data = compdata;
-    viewport->vp_size = 50;
+    viewport->vp_size = 600;
     viewport->vp_x = (viewport->window->win_width - viewport->vp_size) / 2;
 	viewport->vp_y = (viewport->window->win_height - viewport->vp_size) / 2;
     viewport->window->set = 0;
@@ -122,11 +124,26 @@ void drawComplexPattern(mlx_image_t *img, int centerX, int centerY, vp_t *viewpo
     int prevX = centerX, prevY = centerY;
     int x, y;
 
+
     complex_data_t *data;
     graph_data_t *graph_data;
+   
 
     data = viewport->complex_data;
     graph_data = viewport->graph_data;
+    graph_data->thickness = 1;
+
+   if (!img ) {
+        fprintf(stderr, "Error: Invalid arguments in drawComplexPattern\n");
+        return;  // Check for null image and valid thickness
+    }
+       if (graph_data->thickness <= 0) {
+        fprintf(stderr, "Error: Invalid argument thickness\n");
+        return;  // Check for null image and valid thickness
+    }
+   
+
+
 
     for (double t = 0; t < 2 * M_PI * data->depth; t += 0.05) {
         x = centerX + (int)(data->scale_fact * ((data->A + t * data->spiral_fact) * sin(data->a * t + data->delta) + data->wave_amplitude * sin(data->wave_freq * t)*tan(data->wave_freq))*M_PI);
@@ -221,35 +238,76 @@ void key_hook(mlx_key_data_t keydata, void *param)
 	update_vp(data);
 }
 
-void bresen_line(mlx_image_t *img, graph_data_t *graph_data, vp_t *viewport)
-{
-    printf("[DEBUG] Bresen line\n");
-    printf("[DEBUG] bresen data delta %d, %d\n", graph_data->delta_x, graph_data->delta_y);
-    printf("[DEBUG] bresen data start end X %d, %d\n", graph_data->start_x, graph_data->end_x);
-    printf("[DEBUG] bresen data start end Y %d, %d\n", graph_data->start_y, graph_data->end_y);
-    printf("[DEBUG] bresen data step XY %d, %d\n", graph_data->step_x, graph_data->step_y);
+void bresen_line(mlx_image_t *img, graph_data_t *graph_data, vp_t *viewport) {
+    int x = graph_data->start_x;
+    int y = graph_data->start_y;
+    int dx = abs(graph_data->end_x - graph_data->start_x);
+    int dy = abs(graph_data->end_y - graph_data->start_y);
+    int sx = (graph_data->start_x < graph_data->end_x) ? 1 : -1;
+    int sy = (graph_data->start_y < graph_data->end_y) ? 1 : -1;
+    int err = dx - dy;
 
-    graph_data->delta_x = abs(graph_data->end_x - graph_data->start_x);
-    graph_data->delta_y = abs(graph_data->end_y - graph_data->start_y);
-    graph_data->step_x = 1;
-    graph_data->step_y = 1;
-    if (graph_data->start_x >= graph_data->end_x)
-    {
-        graph_data->step_x = -1;
+    while (1) {
+        if (x >= 0 && x < img->width && y >= 0 && y < img->height) {
+            mlx_put_pixel(img, x, y, graph_data->color);
+        }
+        if (x == graph_data->end_x && y == graph_data->end_y) break;
+        int e2 = 2 * err;
+        if (e2 > -dy) { err -= dy; x += sx; }
+        if (e2 < dx) { err += dx; y += sy; }
     }
-    if (graph_data->start_y >= graph_data->end_y)
-    {
-        graph_data->step_y = -1;
-    }
-    if (graph_data->delta_x > graph_data->delta_y)
-    {
-        graph_data->error = graph_data->delta_x - graph_data->delta_y;
-    }
-    else
-    {
-        graph_data->error = graph_data->delta_y - graph_data->delta_x;
-    }
+}
 
+
+// void bresen_line(mlx_image_t *img, graph_data_t *graph_data, vp_t *viewport)
+// {
+//     printf("[DEBUG] Bresen line\n");
+//     printf("[DEBUG] bresen data delta %d, %d\n", graph_data->delta_x, graph_data->delta_y);
+//     printf("[DEBUG] bresen data start end X %d, %d\n", graph_data->start_x, graph_data->end_x);
+//     printf("[DEBUG] bresen data start end Y %d, %d\n", graph_data->start_y, graph_data->end_y);
+//     printf("[DEBUG] bresen data step XY %d, %d\n", graph_data->step_x, graph_data->step_y);
+
+//     graph_data->delta_x = abs(graph_data->end_x - graph_data->start_x);
+//     graph_data->delta_y = abs(graph_data->end_y - graph_data->start_y);
+//     graph_data->step_x = 1;
+//     graph_data->step_y = 1;
+//     if (graph_data->start_x >= graph_data->end_x)
+//     {
+//         graph_data->step_x = -1;
+//     }
+//     if (graph_data->start_y >= graph_data->end_y)
+//     {
+//         graph_data->step_y = -1;
+//     }
+//     if (graph_data->delta_x > graph_data->delta_y)
+//     {
+//         graph_data->error = graph_data->delta_x - graph_data->delta_y;
+//     }
+//     else
+//     {
+//         graph_data->error = graph_data->delta_y - graph_data->delta_x;
+//     }
+//     int prev_x = graph_data->start_x;
+//     int prev_y = graph_data->start_y;
+//     while (1)
+//     {
+//         draw_square(img, graph_data->start_x, graph_data->start_y, viewport);
+//         if (graph_data->start_x == graph_data->end_x && graph_data->start_y == graph_data->end_y)
+//         {
+//             break;
+//         }
+//         if (graph_data->error * 2 >= graph_data->delta_y)
+//         {
+//             graph_data->error -= graph_data->delta_y;
+//             graph_data->start_x += graph_data->step_x;
+//         }
+//         if (graph_data->error * 2 <= graph_data->delta_x)
+//         {
+//             graph_data->error += graph_data->delta_x;
+//             graph_data->start_y += graph_data->step_y;
+//         }
+//     }
+// }
 
 int main() {
     vp_t *viewport = NULL;

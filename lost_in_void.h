@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lost_in_void.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 15:29:58 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/11/22 04:14:00 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/11/22 14:05:13 by matus            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,8 @@ typedef struct graph_data_s
 	int step_x;
 	int	step_y;
 	int	error;
+	uint32_t color;
+	int thickness;
 
 } graph_data_t;
 
