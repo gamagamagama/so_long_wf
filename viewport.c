@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   viewport.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 16:47:38 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/11/22 06:49:25 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/11/22 07:22:21 by matus            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "lost_in_void.h"
+
 void draw_square(mlx_image_t *img, int current_x, int current_y ,vp_t *data)
 {
        // printf("[DEBUG] Drawing square at (%f, %f) with size %d\n", data->vp_x, data->vp_y, data->vp_size);
@@ -121,26 +122,24 @@ void drawComplexPattern(mlx_image_t *img, int centerX, int centerY, vp_t *viewpo
     int prevX = centerX, prevY = centerY;
     int x, y;
 
-   complex_data_t *data;
-   graph_data_t *graph_data;
-     
+    complex_data_t *data;
+    graph_data_t *graph_data;
+
     data = viewport->complex_data;
     graph_data = viewport->graph_data;
 
-//    prevX = graph_data->start_x;
-    //prevY = graph_data->start_y;
-    printf("[DEBUG] COmplex Patern\n");
     for (double t = 0; t < 2 * M_PI * data->depth; t += 0.05) {
         x = centerX + (int)(data->scale_fact * ((data->A + t * data->spiral_fact) * sin(data->a * t + data->delta) + data->wave_amplitude * sin(data->wave_freq * t)*tan(data->wave_freq))*M_PI);
         y = centerY + (int)(data->scale_fact * ((data->B + t * data->spiral_fact) * cos(data->b * t) + data->wave_amplitude * cos(data->wave_freq * t)* tan(data->wave_freq)* M_PI));
-printf("[DEBUG] COmplex Patern before bresen %d, %d and img %d, %d\n", x, y, img->width, img->height);
-        if (x >= 0 && x > img->width && y >= 0 && y > img->height) {
+
+        if (x >= 0 && x < img->width && y >= 0 && y < img->height) {
+            graph_data->start_x = prevX;
+            graph_data->start_y = prevY;
+            graph_data->end_x = x;
+            graph_data->end_y = y;
             bresen_line(img, graph_data, viewport);  // Draw thick line
-            printf("[DEBUG] COmplex Patern after bresen %d, %d\n", img->width, img->height);
         }
-        graph_data->end_x = x;
-        graph_data->end_y = y;
-       
+
         prevX = x;
         prevY = y;
     }
