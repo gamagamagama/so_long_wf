@@ -6,7 +6,7 @@
 /*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 16:47:38 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/11/22 07:22:21 by matus            ###   ########.fr       */
+/*   Updated: 2024/11/22 07:46:44 by matus            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,51 +224,32 @@ void key_hook(mlx_key_data_t keydata, void *param)
 void bresen_line(mlx_image_t *img, graph_data_t *graph_data, vp_t *viewport)
 {
     printf("[DEBUG] Bresen line\n");
-      printf("[DEBUG] bresen data delta %d, %d\n", graph_data->delta_x, graph_data->delta_y);
-      printf("[DEBUG] bresen data start end X %d, %d\n", graph_data->start_x, graph_data->end_x);
-      printf("[DEBUG] bresen data start end Y %d, %d\n", graph_data->start_y, graph_data->end_y);
-      printf("[DEBUG] bresen data step XY %d, %d\n", graph_data->step_x, graph_data->step_y);
-      
-      
-      
+    printf("[DEBUG] bresen data delta %d, %d\n", graph_data->delta_x, graph_data->delta_y);
+    printf("[DEBUG] bresen data start end X %d, %d\n", graph_data->start_x, graph_data->end_x);
+    printf("[DEBUG] bresen data start end Y %d, %d\n", graph_data->start_y, graph_data->end_y);
+    printf("[DEBUG] bresen data step XY %d, %d\n", graph_data->step_x, graph_data->step_y);
 
     graph_data->delta_x = abs(graph_data->end_x - graph_data->start_x);
     graph_data->delta_y = abs(graph_data->end_y - graph_data->start_y);
     graph_data->step_x = 1;
     graph_data->step_y = 1;
-        if (graph_data->start_x >= graph_data->end_x)
-        {
-            graph_data->step_x = -1;
-        }
-        if (graph_data->start_y >= graph_data->end_y)
-        {
-            graph_data->step_y = -1;
-        }
-    graph_data->error = graph_data->delta_x - graph_data->delta_y;
-    while (1)
+    if (graph_data->start_x >= graph_data->end_x)
     {
-        viewport->window->color = 0x0000FFFF;
-        draw_square(img,graph_data->start_x,graph_data->start_y ,viewport);
-        if (graph_data->start_x == graph_data->end_x && graph_data->start_y == graph_data->end_y)
-        {
-            break;
-        }
-        viewport->window->set = graph_data->error * 2;
-        if (viewport->window->set > (-graph_data->delta_y))
-        {
-            graph_data->error -= graph_data->delta_y;
-            graph_data->start_x += graph_data->step_x;
-        }
-        if (viewport->window->set < graph_data->delta_x)
-        {
-            graph_data->error += graph_data->delta_x;
-            graph_data->start_y += graph_data->step_y;
-        }
-        
+        graph_data->step_x = -1;
     }
-    
-        
-}
+    if (graph_data->start_y >= graph_data->end_y)
+    {
+        graph_data->step_y = -1;
+    }
+    if (graph_data->delta_x > graph_data->delta_y)
+    {
+        graph_data->error = graph_data->delta_x - graph_data->delta_y;
+    }
+    else
+    {
+        graph_data->error = graph_data->delta_y - graph_data->delta_x;
+    }
+
 
 int main() {
     vp_t *viewport = NULL;
