@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 15:29:58 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/11/29 18:00:15 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/11/29 22:06:25 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,9 @@
 #include "MLX42/MLX42.h"
 #include "MLX42/MLX42_Int.h"
 #include <inttypes.h>
+#include <stdbool.h>
+// #include "minilibx-linux/mlx.h"
+
 #define M_PI 3.14159265358979323846
 
 // typedef struct tst_node tst_node_t;
@@ -33,16 +36,7 @@
 // typedef struct setup setup_t;
 
 
-typedef struct setup_s
-{
-	vp_t *data;
-	complex_data_t *complex;
-	graph_data_t *graph;
-	tst_node_t	*node;
-	mlx_image_t	*image;
-	mlx_t	*mlx;
-	
-}	setup_t;
+
 
 typedef struct tst_node
 {
@@ -101,6 +95,17 @@ typedef struct view_port
 
 } vp_t;
 
+typedef struct setup_s
+{
+	vp_t *data;
+	complex_data_t *complex;
+	graph_data_t *graph;
+	tst_node_t	*node;
+	mlx_image_t	*image;
+	mlx_t	*mlx;
+	
+}	setup_t;
+
 void bresen_line(mlx_image_t *img, graph_data_t *graph_data, vp_t *viewport);
 void key_hook(mlx_key_data_t keydata, void *param);
 void update_vp(vp_t *viewport);
@@ -110,10 +115,10 @@ void init_vp(vp_t *vp);
 void init_all_data(vp_t *data, complex_data_t *complex, graph_data_t *graph, tst_node_t *node);
 void init_graph(graph_data_t *graph);
 void init_complex(complex_data_t *complex);
-void draw_square(mlx_image_t *img, vp_t *data, uint32_t color);
+//void draw_square(mlx_image_t *img, uint32_t color);
 //void draw_square(mlx_image_t *img, int current_x, int current_y ,vp_t *data);
-
-
+void draw_square(setup_t *setup, uint32_t color);
+void set_up(setup_t *setup);
 
 
 
