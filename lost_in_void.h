@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lost_in_void.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
+/*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 15:29:58 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/11/22 14:05:13 by matus            ###   ########.fr       */
+/*   Updated: 2024/11/29 18:00:15 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,23 @@
 #include <inttypes.h>
 #define M_PI 3.14159265358979323846
 
+// typedef struct tst_node tst_node_t;
+// typedef struct complex_data complex_data_t;
+// typedef struct graph_data graph_data_t;
+// typedef struct vp vp_t;
+// typedef struct setup setup_t;
+
+
+typedef struct setup_s
+{
+	vp_t *data;
+	complex_data_t *complex;
+	graph_data_t *graph;
+	tst_node_t	*node;
+	mlx_image_t	*image;
+	mlx_t	*mlx;
+	
+}	setup_t;
 
 typedef struct tst_node
 {
@@ -88,11 +105,13 @@ void bresen_line(mlx_image_t *img, graph_data_t *graph_data, vp_t *viewport);
 void key_hook(mlx_key_data_t keydata, void *param);
 void update_vp(vp_t *viewport);
 void update_data_cp(mlx_image_t *img, int centerX, int centerY, int thickness);
-void init_window(tst_node_t *window);
-void init_viewport(vp_t *viewport, tst_node_t *window, complex_data_t *compdata,graph_data_t *graph_data);
-void init_graph_data(graph_data_t *graph_data);
-void init_complex_data(complex_data_t *compdata);
-void draw_square(mlx_image_t *img, int current_x, int current_y ,vp_t *data);
+void init_node(tst_node_t *node);
+void init_vp(vp_t *vp);
+void init_all_data(vp_t *data, complex_data_t *complex, graph_data_t *graph, tst_node_t *node);
+void init_graph(graph_data_t *graph);
+void init_complex(complex_data_t *complex);
+void draw_square(mlx_image_t *img, vp_t *data, uint32_t color);
+//void draw_square(mlx_image_t *img, int current_x, int current_y ,vp_t *data);
 
 
 
