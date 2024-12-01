@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 15:29:58 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/11/29 22:06:25 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/01 17:45:56 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,11 +86,13 @@ typedef struct graph_data_s
 
 typedef struct view_port
 {
-	tst_node_t *window;
-	complex_data_t *complex_data;
-	graph_data_t *graph_data;
+	//tst_node_t *window;
+	//complex_data_t *complex_data;
+	//graph_data_t *graph_data;
 	float vp_x;
 	float vp_y;
+	float vp_size_x;
+	float vp_size_y;
 	int32_t vp_size;
 
 } vp_t;
