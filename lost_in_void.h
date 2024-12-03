@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 15:29:58 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/01 17:45:56 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/03 21:41:53 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,9 @@
 // #include "minilibx-linux/mlx.h"
 
 #define M_PI 3.14159265358979323846
-
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 600
+#define VIEWPORT_SIZE 500
 // typedef struct tst_node tst_node_t;
 // typedef struct complex_data complex_data_t;
 // typedef struct graph_data graph_data_t;
@@ -40,17 +42,17 @@
 
 typedef struct tst_node
 {
-	mlx_t *mlx;
+	//mlx_t *mlx;
 	int32_t	win_width;
 	int32_t	win_height;
-	mlx_image_t *image;
+	//mlx_image_t *image;
 	//int32_t vp_pos_x;
 	//int32_t vp_pos_y;
 	//int32_t vp_size;
 	uint32_t color;
 	int	set;
 
-}	tst_node_t;
+}	node_t;
 
 typedef struct complex_data_s
 {
@@ -63,8 +65,8 @@ typedef struct complex_data_s
 	double	delta; //phase difference;
 	double	scale_fact;
 	double	time;
-	int		spiral_fact;
-	int		depth;
+	double	spiral_fact;
+	double	depth;
 
 } complex_data_t;
 
@@ -80,7 +82,7 @@ typedef struct graph_data_s
 	int	step_y;
 	int	error;
 	uint32_t color;
-	int thickness;
+	double thickness;
 
 } graph_data_t;
 
@@ -89,8 +91,8 @@ typedef struct view_port
 	//tst_node_t *window;
 	//complex_data_t *complex_data;
 	//graph_data_t *graph_data;
-	float vp_x;
-	float vp_y;
+	float vp_position_x;
+	float vp_position_y;
 	float vp_size_x;
 	float vp_size_y;
 	int32_t vp_size;
@@ -102,26 +104,26 @@ typedef struct setup_s
 	vp_t *data;
 	complex_data_t *complex;
 	graph_data_t *graph;
-	tst_node_t	*node;
+	node_t	*node;
 	mlx_image_t	*image;
 	mlx_t	*mlx;
 	
 }	setup_t;
 
 void bresen_line(mlx_image_t *img, graph_data_t *graph_data, vp_t *viewport);
-void key_hook(mlx_key_data_t keydata, void *param);
+//void key_hook(mlx_key_data_t keydata, void *param);
 void update_vp(vp_t *viewport);
 void update_data_cp(mlx_image_t *img, int centerX, int centerY, int thickness);
-void init_node(tst_node_t *node);
+void init_node(node_t *node);
 void init_vp(vp_t *vp);
-void init_all_data(vp_t *data, complex_data_t *complex, graph_data_t *graph, tst_node_t *node);
+void init_all_data(vp_t *data, complex_data_t *complex, graph_data_t *graph, node_t *node);
 void init_graph(graph_data_t *graph);
-void init_complex(complex_data_t *complex);
+//void init_complex(complex_data_t *complex);
 //void draw_square(mlx_image_t *img, uint32_t color);
 //void draw_square(mlx_image_t *img, int current_x, int current_y ,vp_t *data);
 void draw_square(setup_t *setup, uint32_t color);
 void set_up(setup_t *setup);
-
+void print_all(setup_t *setup);
 
 
 #endif

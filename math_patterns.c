@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   math_patterns.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
+/*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 19:03:24 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/11/22 13:55:57 by matus            ###   ########.fr       */
+/*   Updated: 2024/12/03 19:22:43 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,12 +93,12 @@ void drawComplexPattern(mlx_image_t *img, int centerX, int centerY, int thicknes
 
         if (x >= 0 && x < img->width && y >= 0 && y < img->height) {
             draw_thick_line(img, prevX, prevY, x, y, thickness, 0xFF0000FF);  // Draw thick line
-            if (prevX == prevY)
-            {
-                x = prevX;
-                y = prevY;
+            // if (prevX == prevY)
+            // {
+            //     x = prevX;
+            //     y = prevY;
             
-            }
+            // }
         }
 
         prevX = x;
@@ -127,7 +127,8 @@ void key_hook(mlx_key_data_t keydata, void *param) {
     mlx_t *mlx = (mlx_t *)param;
     static int thickness = 0.1;  // Starting thickness
 
-    if (keydata.key == MLX_KEY_S && keydata.action == MLX_REPEAT) {
+    if (keydata.key == MLX_KEY_S && keydata.action == MLX_PRESS) {
+        fprintf(stderr, "KEY : S\n");
         waveAmplitude += 2;  // Increase wave amplitude
         viewportPositionY += 10;  // Move viewport down
         spiralFactor += 1;

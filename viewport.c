@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 16:47:38 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/11/29 14:53:11 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/03 18:53:42 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,13 +81,13 @@ void init_viewport(vp_t *viewport, tst_node_t *window, complex_data_t *compdata,
 {
      printf("[DEBUG] Initializing viewport...\n");
 
-    viewport->window = window;
-    viewport->graph_data = graphdata;
-    viewport->complex_data = compdata;
+    //viewport->window = window;
+    //viewport->graph_data = graphdata;
+  //  viewport->complex_data = compdata;
     viewport->vp_size = 600;
-    viewport->vp_x = (viewport->window->win_width - viewport->vp_size) / 2;
-	viewport->vp_y = (viewport->window->win_height - viewport->vp_size) / 2;
-    viewport->window->set = 0;
+    viewport->vp_x = 300; //(viewport->window->win_width - viewport->vp_size) / 2;
+	viewport->vp_y = 300; //(viewport->window->win_height - viewport->vp_size) / 2;
+    //viewport->set = 0;
         printf("[DEBUG] Viewport initialized: vp_x = %f, vp_y = %f, vp_size = %d\n", viewport->vp_x, viewport->vp_y, viewport->vp_size);
 
 }
@@ -97,7 +97,7 @@ void init_window(tst_node_t *window)
 
 	window->win_width = 800;
 	window->win_height = 600;
-	window->image = NULL;
+//	window->image = NULL;
         printf("[DEBUG] Window initialized: win_width = %d, win_height = %d \n", window->win_height, window->win_width);
 
 }
