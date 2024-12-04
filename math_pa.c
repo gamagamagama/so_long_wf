@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/04 05:24:09 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/04 14:24:51 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,26 +62,27 @@ void init_graph(graph_data_t *graph)
 
 }
 
-setup_t *init_setup() {
-    setup_t *setup = malloc(sizeof(setup_t));
-    if (!setup) {
+game_t *init_game() {
+    game_t *game = malloc(sizeof(game_t));
+    if (!game) {
         fprintf(stderr, "Failed to allocate memory for setup\n");
         exit(EXIT_FAILURE);
     }
-    setup->complex = malloc(sizeof(complex_data_t));
-    setup->data = malloc(sizeof(vp_t));
-    setup->node = malloc(sizeof(node_t));
-    setup->graph = malloc(sizeof(graph_data_t));
-    if (!setup->complex || !setup->data || !setup->node || !setup->graph) {
+    game->setup = malloc(sizeof(setup_t));
+    game->setup->complex = malloc(sizeof(complex_data_t));
+    game->setup->data = malloc(sizeof(vp_t));
+    game->setup->node = malloc(sizeof(node_t));
+    game->setup->graph = malloc(sizeof(graph_data_t));
+    if (!game->setup->complex || !game->setup->data || !game->setup->node || !game->setup->graph || !game->setup) {
         fprintf(stderr, "Failed to allocate memory for sub-structures\n");
         exit(EXIT_FAILURE);
     }
-    init_complex_data(setup->complex);
-    init_vp_data(setup->data);
-    init_node_data(setup->node);
-    init_graph(setup->graph);
-    setup->image = NULL;
-    return (setup);
+    init_complex_data(game->setup->complex);
+    init_vp_data(game->setup->data);
+    init_node_data(game->setup->node);
+    init_graph(game->setup->graph);
+    game->setup->image = NULL;
+    return (game);
 }
 
 // Draw a filled square
@@ -148,7 +149,6 @@ void draw_complex_pattern(setup_t *setup, mlx_image_t *img, graph_data_t *g)
     g->start_y = center;
     g->color = 0x007F7FFF;
     c->time = 0;
-    fprintf(stderr, "center: %d\n", center);
     while (c->time < (2 * M_PI * c->depth)) 
     {
         
@@ -202,25 +202,82 @@ void key_hook(mlx_key_data_t keydata, void *param) {
     update_viewport(setup, thickness);
 }
 
+void free_game(game_t *game) 
+{
+    free(game->setup->complex);
+    free(game->setup->data);
+    free(game->setup->node);
+    free(game->setup);
+    free(game);
+}
+
+
+void mlx_data(game_t *game) 
+{
+     //env_back->mlx = mlx;
+    update_viewport(game->setup, 1);
+    //update_viewport(env_back, 1);
+    mlx_key_hook(game->setup->mlx, key_hook, game->setup);
+    mlx_loop(game->setup->mlx);
+
+    mlx_delete_image(game->setup->mlx, game->setup->image);
+    mlx_terminate(game->setup->mlx);
+
+}
+assets_t *init_assets() 
+{
+    assets_t *assets = malloc(sizeof(assets_t));
+    assets->game = init_game();
+    assets->env_back = init_game();
+    assets->env_front = init_game();
+    assets->colect = init_game();
+    assets->enemy = init_game();
+    return assets;
+}
+
+
+game_t *asset(assets_t *assets, int flag)
+{
+    if (flag == 0)
+        return (assets->player);
+    else if (flag == 1)
+        return (assets->game);
+    else if (flag == 2)
+        return (assets->env_back);
+    else if (flag == 3)
+        return (assets->env_front);
+    else if (flag == 4)
+        return (assets->colect);
+    else if (flag == 5)
+        return (assets->enemy);
+    else
+        return (NULL);
+}
+
+void create_player(game_t *player, mlx_t *mlx)
+{
+    player->setup->mlx = mlx;
+    mlx_data(player);
+}
 // Main function
-int main() {
-    setup_t *setup = init_setup();
-    setup_t *env = init_setup();
-    setup->mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "Lost in Void", false);
-    if (!setup->mlx) {
+int main() 
+{
+    mlx_t *mlx;
+    assets_t *assets = init_assets();
+    game_t *player = asset(assets, 0);
+ 
+    
+    mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "Lost in Void", false);
+    if (!mlx) 
+    {
         fprintf(stderr, "Failed to initialize MLX\n");
         return EXIT_FAILURE;
     }
-
-    update_viewport(setup, 1);
-    mlx_key_hook(setup->mlx, key_hook, setup);
-    mlx_loop(setup->mlx);
-
-    mlx_delete_image(setup->mlx, setup->image);
-    mlx_terminate(setup->mlx);
-    free(setup->complex);
-    free(setup->data);
-    free(setup->node);
-    free(setup);
+    assets->game->setup->mlx = mlx;
+    mlx_data(assets->game);
+    create_player(player, mlx);
+   
+    free_game(assets->game);
+    free(assets);
     return EXIT_SUCCESS;
 }

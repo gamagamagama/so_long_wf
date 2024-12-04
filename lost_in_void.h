@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 15:29:58 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/04 05:10:57 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/04 14:12:22 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,6 +111,21 @@ typedef struct setup_s
 	mlx_t	*mlx;
 	
 }	setup_t;
+
+typedef struct game_s
+{
+	setup_t *setup;
+} game_t;
+
+typedef struct assets_s
+{
+	game_t *game;
+	game_t *env_back;
+	game_t *env_front;
+	game_t *colect;
+	game_t *enemy;
+	game_t *player;
+} assets_t;
 
 void bresen_line(mlx_image_t *img, graph_data_t *graph_data, vp_t *viewport);
 //void key_hook(mlx_key_data_t keydata, void *param);
