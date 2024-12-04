@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 15:29:58 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/03 21:41:53 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/04 05:10:57 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@
 #define M_PI 3.14159265358979323846
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
-#define VIEWPORT_SIZE 500
+#define VIEWPORT_SIZE 50
 // typedef struct tst_node tst_node_t;
 // typedef struct complex_data complex_data_t;
 // typedef struct graph_data graph_data_t;
@@ -72,15 +72,17 @@ typedef struct complex_data_s
 
 typedef struct graph_data_s
 {
-	int	delta_x;
-	int	delta_y;
-	int start_x;
-	int start_y;
-	int end_x;
-	int end_y;
-	int step_x;
-	int	step_y;
+	int	delta_x; //dx
+	int	delta_y; //dy
+	int start_x; //x0
+	int start_y; //y0
+	int end_x; //x1
+	int end_y; //y1
+	int step_x; //sx
+	int	step_y; //sy
 	int	error;
+	int pixel_x; //px
+	int pixel_y; //py
 	uint32_t color;
 	double thickness;
 
@@ -124,6 +126,7 @@ void init_graph(graph_data_t *graph);
 void draw_square(setup_t *setup, uint32_t color);
 void set_up(setup_t *setup);
 void print_all(setup_t *setup);
-
+void updateViewport(setup_t *setup , int thickness);
+void init_graph(graph_data_t *graph);
 
 #endif

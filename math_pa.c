@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/04 03:48:25 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/04 05:24:09 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,14 @@ void init_complex_data(complex_data_t *complex) {
     complex->wave_amplitude = 10;
     complex->wave_freq = 3;
     complex->spiral_fact = 1;
-    complex->depth = 3;
+    complex->depth = 1;
     complex->A = 100;
-    complex->B = 80;
+    complex->B = 100;
     complex->a = 3;
     complex->b = 2;
     complex->delta = M_PI / 4;
-    complex->scale_fact = 0.1; 
+    complex->scale_fact = 0.1;
+    complex->time = 0; 
 }
 
 
@@ -39,7 +40,7 @@ void init_vp_data(vp_t *vp) {
 void init_node_data(node_t *node) {
     node->win_width = WINDOW_WIDTH;
     node->win_height = WINDOW_HEIGHT;
-    node->color = 0x00FF007F;
+    node->color = 0x00000000;
     node->set = 0;
 }
 
@@ -53,9 +54,11 @@ void init_graph(graph_data_t *graph)
     graph->start_y = 0;
     graph->step_x = 0;
     graph->step_y = 0;
+    graph->pixel_x = 0;
+    graph->pixel_y = 0;
     graph->thickness = 0;
     graph->error = 0;
-    graph->color = 0x00FF007F;
+    graph->color = 0x00000000;
 
 }
 
@@ -82,91 +85,83 @@ setup_t *init_setup() {
 }
 
 // Draw a filled square
-void draw_filled_square(mlx_image_t *img, int x, int y, int size, uint32_t color) {
-   // graph_data_t *g = setup->graph;
-    for (int dy = -size; dy <= size; dy++) {
-        for (int dx = -size; dx <= size; dx++) {
-            int px = x + dx;
-            int py = y + dy;
-            if (px >= 0 && px < img->width && py >= 0 && py < img->height) {
-                mlx_put_pixel(img, px, py, color);
+void draw_filled_square(mlx_image_t *img,graph_data_t *g)
+{
+   g->delta_y = -g->thickness;
+   g->delta_x = -g->thickness;
+    while ( g->delta_y <=  g->thickness) 
+    {
+        g->delta_y++;
+        while ( g->delta_x <= g->thickness) 
+        {
+            g->delta_x++;
+            g->pixel_x = g->start_x + g->delta_x;
+            g->pixel_y = g->start_y + g->delta_y;
+            if (g->pixel_x >= 0 && g->pixel_x < img->width && g->pixel_y >= 0 && g->pixel_y < img->height) 
+            {
+                mlx_put_pixel(img, g->pixel_x, g->pixel_y, g->color);
             }
         }
     }
 }
 
 // Draw a thick line
-void draw_thick_line(mlx_image_t *img, int x0, int y0, int x1, int y1, int thickness, uint32_t color) {
-    int dx = abs(x1 - x0);
-    int dy = abs(y1 - y0);
-    int sx = (x0 < x1) ? 1 : -1;
-    int sy = (y0 < y1) ? 1 : -1;
-    int err = dx - dy;
 
+void draw_thick_line(mlx_image_t *img, graph_data_t *g) 
+{
+    g->delta_x = abs(g->end_x - g->start_x);
+    g->delta_y = abs(g->end_y - g->start_y);
+    if (g->start_x < g->end_x)
+        g->step_x = 1;
+    else
+        g->step_x = -1;
+    if (g->start_y < g->end_y)
+        g->step_y = 1;
+    else
+        g->step_y = -1;  
+    g->error = g->delta_x - g->delta_y;
     while (1) {
-        draw_filled_square(img, x0, y0, thickness, color);
-        if (x0 == x1 && y0 == y1) break;
-        int e2 = err * 2;
-        if (e2 > -dy) { err -= dy; x0 += sx; }
-        if (e2 < dx) { err += dx; y0 += sy; }
+        draw_filled_square(img, g);
+        if (g->start_x == g->end_x && g->start_y == g->end_y) 
+            break;
+        int e2 = g->error * 2;
+        if (e2 > -g->delta_y) 
+        { 
+            g->error -= g->delta_y; 
+            g->start_x += g->step_x; 
+        }
+        if (e2 < g->delta_x) 
+        { 
+            g->error += g->delta_x; 
+            g->start_y += g->step_y; 
+        }
     }
 }
 
 // Draw the pattern
-void draw_complex_pattern(setup_t *setup, mlx_image_t *img, graph_data_t *g) //int centerX, int centerY, int thickness) {
+void draw_complex_pattern(setup_t *setup, mlx_image_t *img, graph_data_t *g)
 { 
     complex_data_t *c = setup->complex;
-   // g->start_x = setup->data->vp_size / 2;
-   // g->start_y = setup->data->vp_size / 2;
-     int count = 0;
-    int center = setup->data->vp_size / 2;
+    int center; 
+    center = setup->data->vp_size / 2;
     g->start_x = center;
     g->start_y = center;
+    g->color = 0x007F7FFF;
+    c->time = 0;
     fprintf(stderr, "center: %d\n", center);
-    for (double t = 0; t < 2 * M_PI * c->depth; t += 0.05) {
-        g->end_x = center + (int)(c->scale_fact * ((c->A + t * c->spiral_fact) * sin(c->a * t + c->delta) + c->wave_amplitude * sin(c->wave_freq * t) * tan(c->wave_freq) * M_PI));
-        g->end_y = center + (int)(c->scale_fact * ((c->B + t * c->spiral_fact) * cos(c->b * t) + c->wave_amplitude * cos(c->wave_freq * t) * tan(c->wave_freq) * M_PI));
-        count++;
-        if (count == 1)
-        {
-            fprintf(stderr, "x: %d, y: %d\n", g->end_x, g->end_y);
-        }
+    while (c->time < (2 * M_PI * c->depth)) 
+    {
         
-
+        g->end_x = center + (int)(c->scale_fact * ((c->A + c->time * c->spiral_fact) * sin(c->a * c->time + c->delta) + c->wave_amplitude * sin(c->wave_freq * c->time))); //* tan(c->wave_freq) * M_PI));
+        g->end_y = center + (int)(c->scale_fact * ((c->B + c->time * c->spiral_fact) * cos(c->b * c->time) + c->wave_amplitude * cos(c->wave_freq * c->time)));  //* tan(c->wave_freq) * M_PI));
         if (g->end_x >= 0 && g->end_x < img->width && g->end_y >= 0 && g->end_y < img->height) {
-            draw_thick_line(img, g->start_x, g->start_y, g->end_x, g->end_y, g->thickness, 0xFF0000FF);
+            draw_thick_line(img, g);
         }
+        c->time += 0.05;
         g->start_x = g->end_x;
         g->start_y = g->end_y;
     }
 }
-// void draw_complex_pattern(setup_t *setup, mlx_image_t *img, int centerX, int centerY, int thickness) {
-//     complex_data_t *c = setup->complex;
-//     graph_data_t *g = setup->graph;
-//     int prevX = centerX; 
-//     int prevY = centerY;
-//     int count = 0;
-//     // fprintf(stderr, "ERROR 5: centerX: %d, centerY: %d\n", centerX, centerY);
-//     // fprintf(stderr,"prevX: %d, prevY: %d\n", prevX, prevY);
-//     for (double t = 0; t < 2 * M_PI * c->depth; t += 0.05) {
-//         int x = centerX + (int)(c->scale_fact * ((c->A + t * c->spiral_fact) * sin(c->a * t + c->delta) + c->wave_amplitude * sin(c->wave_freq * t) * tan(c->wave_freq) * M_PI));
-//         int y = centerY + (int)(c->scale_fact * ((c->B + t * c->spiral_fact) * cos(c->b * t) + c->wave_amplitude * cos(c->wave_freq * t) * tan(c->wave_freq) * M_PI));
-//         count++;
-//         if (count == 1)
-//         {
-//             fprintf(stderr, "x: %d, y: %d\n", x, y);
-//         }
-        
-        
-        
-//         if (x >= 0 && x < img->width && y >= 0 && y < img->height) {
-//             draw_thick_line(img, prevX, prevY, x, y, thickness, 0xFF0000FF);
-//             //fprintf(stderr, "DRAW THICK LINE prevX: %d, prevY: %d x: %d, y: %d\n", prevX, prevY, x, y);
-//         }
-//         prevX = x;
-//         prevY = y;
-//     }
-// }
 
 // Update the viewport
 void update_viewport(setup_t *setup, int thickness) {
@@ -177,13 +172,6 @@ void update_viewport(setup_t *setup, int thickness) {
         fprintf(stderr, "Failed to create image\n");
         return;
     }
-    // int centerX = setup->data->vp_size / 2;
-    // int centerY = setup->data->vp_size / 2;
-    //fprintf(stderr, "centerX: %d, centerY: %d\n", centerX, centerY);
-    //draw_complex_pattern(setup, setup->image, centerX, centerY, thickness);
-    g->start_x = setup->data->vp_size / 2;
-    g->start_y = setup->data->vp_size / 2;
-    fprintf(stderr, "g->start_x: %d, g->start_y: %d\n", g->start_x, g->start_y);
     draw_complex_pattern(setup, setup->image, g);
     mlx_image_to_window(setup->mlx, setup->image, setup->data->vp_position_x, setup->data->vp_position_y);
 }
@@ -217,7 +205,8 @@ void key_hook(mlx_key_data_t keydata, void *param) {
 // Main function
 int main() {
     setup_t *setup = init_setup();
-    setup->mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "Pattern Viewport", false);
+    setup_t *env = init_setup();
+    setup->mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "Lost in Void", false);
     if (!setup->mlx) {
         fprintf(stderr, "Failed to initialize MLX\n");
         return EXIT_FAILURE;
