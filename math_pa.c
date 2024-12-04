@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/04 14:24:51 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/04 17:35:48 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -218,66 +218,187 @@ void mlx_data(game_t *game)
     update_viewport(game->setup, 1);
     //update_viewport(env_back, 1);
     mlx_key_hook(game->setup->mlx, key_hook, game->setup);
-    mlx_loop(game->setup->mlx);
-
-    mlx_delete_image(game->setup->mlx, game->setup->image);
-    mlx_terminate(game->setup->mlx);
+  
 
 }
-assets_t *init_assets() 
+void custumize_game(game_t *game) 
+{
+    game->setup->complex->wave_amplitude = 10;
+    game->setup->complex->wave_freq = 2;
+    game->setup->data->vp_position_x = 100;
+    game->setup->data->vp_position_y = 100;
+    game->setup->graph->color = 0x0000FFFF; // Blue
+}
+void custumize_env_back(game_t *env_back)
+{
+    env_back->setup->complex->wave_amplitude = 8;
+    env_back->setup->complex->wave_freq = 1.5;
+    env_back->setup->data->vp_position_x = 250;
+    env_back->setup->data->vp_position_y = 250;
+    env_back->setup->graph->color = 0x00FF00FF; // Green
+}
+
+void custumize_env_front(game_t *env_front)
+{
+    env_front->setup->complex->wave_amplitude = 8;
+    env_front->setup->complex->wave_freq = 1.5;
+    env_front->setup->data->vp_position_x = 0;
+    env_front->setup->data->vp_position_y = 0;
+    env_front->setup->graph->color = 0x007F00FF; 
+}
+void custumize_colect(game_t *colect)
+{
+    colect->setup->complex->wave_amplitude = 8;
+    colect->setup->complex->wave_freq = 1.5;
+    colect->setup->data->vp_position_x = 0;
+    colect->setup->data->vp_position_y = 100;
+    colect->setup->graph->color = 0xFF7F00FF; 
+}
+void custumize_enemy(game_t *enemy)
+{
+    enemy->setup->complex->wave_amplitude = 8;
+    enemy->setup->complex->wave_freq = 1.5;
+    enemy->setup->data->vp_position_x = 0;
+    enemy->setup->data->vp_position_y = 50;
+    enemy->setup->graph->color = 0xFFFFFFFF; 
+}
+void custumize_player(game_t *player)
+{
+    player->setup->data->vp_position_x = 300;
+    player->setup->data->vp_position_y = 300;
+    player->setup->graph->color = 0x00FF7FFF; 
+}
+
+void custumizer_pass(assets_t *assets)
+{
+    customizer(assets->game, assets);
+    customizer(assets->env_back, assets);
+    customizer(assets->env_front, assets);
+    customizer(assets->colect, assets);
+    customizer(assets->enemy, assets);
+    customizer(assets->player, assets);
+}
+void customizer(game_t *aset, assets_t *assets)
+{
+    if (aset == assets->game)
+        custumize_game(assets->game);
+    else if (aset == assets->env_back)
+        custumize_env_back(assets->env_back);
+    else if (aset == assets->env_front)
+        custumize_env_front(assets->env_front);
+    else if (aset == assets->colect)
+        custumize_colect(assets->colect);
+    else if (aset == assets->enemy)
+        custumize_enemy(assets->enemy);
+    else if (aset == assets->player)
+        custumize_player(assets->player);
+}
+assets_t *init_assets(mlx_t *mlx) 
 {
     assets_t *assets = malloc(sizeof(assets_t));
+    
+    if(!assets)
+    {
+        fprintf(stderr, "Failed to allocate memory for assets\n");
+        return (NULL);
+    }
+
     assets->game = init_game();
     assets->env_back = init_game();
     assets->env_front = init_game();
     assets->colect = init_game();
     assets->enemy = init_game();
-    return assets;
+    assets->player = init_game();
+
+    assets->game->setup->mlx = mlx;
+    assets->env_back->setup->mlx = mlx;
+    assets->env_front->setup->mlx = mlx;
+    assets->colect->setup->mlx = mlx;
+    assets->enemy->setup->mlx = mlx;
+    assets->player->setup->mlx = mlx;
+
+    custumizer_pass(assets);
+    
+    
+    return (assets);
 }
 
 
-game_t *asset(assets_t *assets, int flag)
-{
-    if (flag == 0)
-        return (assets->player);
-    else if (flag == 1)
-        return (assets->game);
-    else if (flag == 2)
-        return (assets->env_back);
-    else if (flag == 3)
-        return (assets->env_front);
-    else if (flag == 4)
-        return (assets->colect);
-    else if (flag == 5)
-        return (assets->enemy);
-    else
-        return (NULL);
-}
+// game_t *asset(assets_t *assets, int flag)
+// {
+//     if (flag == 0)
+//         return (assets->player);
+//     else if (flag == 1)
+//         return (assets->game);
+//     else if (flag == 2)
+//         return (assets->env_back);
+//     else if (flag == 3)
+//         return (assets->env_front);
+//     else if (flag == 4)
+//         return (assets->colect);
+//     else if (flag == 5)
+//         return (assets->enemy);
+//     else
+//         return (NULL);
+// }
 
 void create_player(game_t *player, mlx_t *mlx)
 {
     player->setup->mlx = mlx;
     mlx_data(player);
 }
+
+mlx_t *init_mlx_session(int32_t width, int32_t height, char *title)
+{
+    mlx_t *mlx;
+    mlx = mlx_init(width, height, title, false);
+    if (!mlx)
+    {
+        fprintf(stderr, "Failed to initialize MLX\n");
+        return NULL;
+    }
+    return (mlx);
+}
+
+void render(assets_t *assets)
+{
+    update_viewport(assets->game->setup, 1);
+    update_viewport(assets->env_back->setup, 1);
+    update_viewport(assets->env_front->setup, 1);
+    update_viewport(assets->colect->setup, 1);
+    update_viewport(assets->enemy->setup, 1);
+    
+}
 // Main function
 int main() 
 {
     mlx_t *mlx;
-    assets_t *assets = init_assets();
-    game_t *player = asset(assets, 0);
- 
+    assets_t *assets;
+
+    mlx = init_mlx_session(WINDOW_WIDTH, WINDOW_HEIGHT, "Lost in Void");
+    assets = init_assets(mlx);
+
+    render(assets);
+    mlx_key_hook(mlx, key_hook, assets->player->setup);
+
     
-    mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "Lost in Void", false);
-    if (!mlx) 
-    {
-        fprintf(stderr, "Failed to initialize MLX\n");
-        return EXIT_FAILURE;
-    }
-    assets->game->setup->mlx = mlx;
-    mlx_data(assets->game);
-    create_player(player, mlx);
+    mlx_loop(mlx);
+
+  
+    mlx_delete_image(mlx, assets->player->setup->image);
+    mlx_delete_image(mlx, assets->env_back->setup->image);
+    mlx_delete_image(mlx, assets->env_front->setup->image);
+    mlx_delete_image(mlx, assets->colect->setup->image);
+    mlx_delete_image(mlx, assets->enemy->setup->image);
+
+    free_game(assets->player);
+    free_game(assets->env_back);
+    free_game(assets->env_front);
+    free_game(assets->colect);
+    free_game(assets->enemy);
    
     free_game(assets->game);
     free(assets);
+    mlx_terminate(mlx);
     return EXIT_SUCCESS;
 }
