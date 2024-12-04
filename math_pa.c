@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/04 17:35:48 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/04 19:31:40 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,7 +147,7 @@ void draw_complex_pattern(setup_t *setup, mlx_image_t *img, graph_data_t *g)
     center = setup->data->vp_size / 2;
     g->start_x = center;
     g->start_y = center;
-    g->color = 0x007F7FFF;
+   // g->color = 0x007F7FFF;
     c->time = 0;
     while (c->time < (2 * M_PI * c->depth)) 
     {
@@ -212,15 +212,15 @@ void free_game(game_t *game)
 }
 
 
-void mlx_data(game_t *game) 
-{
-     //env_back->mlx = mlx;
-    update_viewport(game->setup, 1);
-    //update_viewport(env_back, 1);
-    mlx_key_hook(game->setup->mlx, key_hook, game->setup);
+// void mlx_data(game_t *game) 
+// {
+//      //env_back->mlx = mlx;
+//     update_viewport(game->setup, 1);
+//     //update_viewport(env_back, 1);
+//     mlx_key_hook(game->setup->mlx, key_hook, game->setup);
   
 
-}
+// }
 void custumize_game(game_t *game) 
 {
     game->setup->complex->wave_amplitude = 10;
@@ -264,8 +264,8 @@ void custumize_enemy(game_t *enemy)
 }
 void custumize_player(game_t *player)
 {
-    player->setup->data->vp_position_x = 300;
-    player->setup->data->vp_position_y = 300;
+    player->setup->data->vp_position_x = 300.0f;
+    player->setup->data->vp_position_y = 300.0f;
     player->setup->graph->color = 0x00FF7FFF; 
 }
 
@@ -342,11 +342,11 @@ assets_t *init_assets(mlx_t *mlx)
 //         return (NULL);
 // }
 
-void create_player(game_t *player, mlx_t *mlx)
-{
-    player->setup->mlx = mlx;
-    mlx_data(player);
-}
+// void create_player(game_t *player, mlx_t *mlx)
+// {
+//     player->setup->mlx = mlx;
+//     mlx_data(player);
+// }
 
 mlx_t *init_mlx_session(int32_t width, int32_t height, char *title)
 {
@@ -369,6 +369,15 @@ void render(assets_t *assets)
     update_viewport(assets->enemy->setup, 1);
     
 }
+
+void event_handler(mlx_key_data_t keydata, void *param)
+{
+    assets_t *assets = (assets_t *)param;
+    key_hook(keydata, assets->player->setup);
+    
+}
+
+
 // Main function
 int main() 
 {
@@ -385,12 +394,12 @@ int main()
     mlx_loop(mlx);
 
   
-    mlx_delete_image(mlx, assets->player->setup->image);
+   
     mlx_delete_image(mlx, assets->env_back->setup->image);
     mlx_delete_image(mlx, assets->env_front->setup->image);
     mlx_delete_image(mlx, assets->colect->setup->image);
     mlx_delete_image(mlx, assets->enemy->setup->image);
-
+    mlx_delete_image(mlx, assets->player->setup->image);
     free_game(assets->player);
     free_game(assets->env_back);
     free_game(assets->env_front);
