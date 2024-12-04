@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/03 23:33:57 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/04 03:48:25 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,13 +32,32 @@ void init_vp_data(vp_t *vp) {
     vp->vp_size = VIEWPORT_SIZE;
     vp->vp_position_x = (WINDOW_WIDTH - VIEWPORT_SIZE) / 2;
     vp->vp_position_y = (WINDOW_HEIGHT - VIEWPORT_SIZE) / 2;
+    vp->vp_size_x = VIEWPORT_SIZE;
+    vp->vp_size_y = VIEWPORT_SIZE;
 }
 
 void init_node_data(node_t *node) {
     node->win_width = WINDOW_WIDTH;
     node->win_height = WINDOW_HEIGHT;
+    node->color = 0x00FF007F;
+    node->set = 0;
 }
 
+void init_graph(graph_data_t *graph) 
+{
+    graph->delta_x = 0;
+    graph->delta_y = 0;
+    graph->end_x = 0;
+    graph->end_y = 0;
+    graph->start_x = 0;
+    graph->start_y = 0;
+    graph->step_x = 0;
+    graph->step_y = 0;
+    graph->thickness = 0;
+    graph->error = 0;
+    graph->color = 0x00FF007F;
+
+}
 
 setup_t *init_setup() {
     setup_t *setup = malloc(sizeof(setup_t));
@@ -49,19 +68,22 @@ setup_t *init_setup() {
     setup->complex = malloc(sizeof(complex_data_t));
     setup->data = malloc(sizeof(vp_t));
     setup->node = malloc(sizeof(node_t));
-    if (!setup->complex || !setup->data || !setup->node) {
+    setup->graph = malloc(sizeof(graph_data_t));
+    if (!setup->complex || !setup->data || !setup->node || !setup->graph) {
         fprintf(stderr, "Failed to allocate memory for sub-structures\n");
         exit(EXIT_FAILURE);
     }
     init_complex_data(setup->complex);
     init_vp_data(setup->data);
     init_node_data(setup->node);
+    init_graph(setup->graph);
     setup->image = NULL;
-    return setup;
+    return (setup);
 }
 
 // Draw a filled square
 void draw_filled_square(mlx_image_t *img, int x, int y, int size, uint32_t color) {
+   // graph_data_t *g = setup->graph;
     for (int dy = -size; dy <= size; dy++) {
         for (int dx = -size; dx <= size; dx++) {
             int px = x + dx;
@@ -91,33 +113,78 @@ void draw_thick_line(mlx_image_t *img, int x0, int y0, int x1, int y1, int thick
 }
 
 // Draw the pattern
-void draw_complex_pattern(setup_t *setup, mlx_image_t *img, int centerX, int centerY, int thickness) {
+void draw_complex_pattern(setup_t *setup, mlx_image_t *img, graph_data_t *g) //int centerX, int centerY, int thickness) {
+{ 
     complex_data_t *c = setup->complex;
-    int prevX = centerX, prevY = centerY;
-
+   // g->start_x = setup->data->vp_size / 2;
+   // g->start_y = setup->data->vp_size / 2;
+     int count = 0;
+    int center = setup->data->vp_size / 2;
+    g->start_x = center;
+    g->start_y = center;
+    fprintf(stderr, "center: %d\n", center);
     for (double t = 0; t < 2 * M_PI * c->depth; t += 0.05) {
-        int x = centerX + (int)(c->scale_fact * ((c->A + t * c->spiral_fact) * sin(c->a * t + c->delta) + c->wave_amplitude * sin(c->wave_freq * t) * tan(c->wave_freq) * M_PI));
-        int y = centerY + (int)(c->scale_fact * ((c->B + t * c->spiral_fact) * cos(c->b * t) + c->wave_amplitude * cos(c->wave_freq * t) * tan(c->wave_freq) * M_PI));
-
-        if (x >= 0 && x < img->width && y >= 0 && y < img->height) {
-            draw_thick_line(img, prevX, prevY, x, y, thickness, 0xFF0000FF);
+        g->end_x = center + (int)(c->scale_fact * ((c->A + t * c->spiral_fact) * sin(c->a * t + c->delta) + c->wave_amplitude * sin(c->wave_freq * t) * tan(c->wave_freq) * M_PI));
+        g->end_y = center + (int)(c->scale_fact * ((c->B + t * c->spiral_fact) * cos(c->b * t) + c->wave_amplitude * cos(c->wave_freq * t) * tan(c->wave_freq) * M_PI));
+        count++;
+        if (count == 1)
+        {
+            fprintf(stderr, "x: %d, y: %d\n", g->end_x, g->end_y);
         }
-        prevX = x;
-        prevY = y;
+        
+
+        if (g->end_x >= 0 && g->end_x < img->width && g->end_y >= 0 && g->end_y < img->height) {
+            draw_thick_line(img, g->start_x, g->start_y, g->end_x, g->end_y, g->thickness, 0xFF0000FF);
+        }
+        g->start_x = g->end_x;
+        g->start_y = g->end_y;
     }
 }
+// void draw_complex_pattern(setup_t *setup, mlx_image_t *img, int centerX, int centerY, int thickness) {
+//     complex_data_t *c = setup->complex;
+//     graph_data_t *g = setup->graph;
+//     int prevX = centerX; 
+//     int prevY = centerY;
+//     int count = 0;
+//     // fprintf(stderr, "ERROR 5: centerX: %d, centerY: %d\n", centerX, centerY);
+//     // fprintf(stderr,"prevX: %d, prevY: %d\n", prevX, prevY);
+//     for (double t = 0; t < 2 * M_PI * c->depth; t += 0.05) {
+//         int x = centerX + (int)(c->scale_fact * ((c->A + t * c->spiral_fact) * sin(c->a * t + c->delta) + c->wave_amplitude * sin(c->wave_freq * t) * tan(c->wave_freq) * M_PI));
+//         int y = centerY + (int)(c->scale_fact * ((c->B + t * c->spiral_fact) * cos(c->b * t) + c->wave_amplitude * cos(c->wave_freq * t) * tan(c->wave_freq) * M_PI));
+//         count++;
+//         if (count == 1)
+//         {
+//             fprintf(stderr, "x: %d, y: %d\n", x, y);
+//         }
+        
+        
+        
+//         if (x >= 0 && x < img->width && y >= 0 && y < img->height) {
+//             draw_thick_line(img, prevX, prevY, x, y, thickness, 0xFF0000FF);
+//             //fprintf(stderr, "DRAW THICK LINE prevX: %d, prevY: %d x: %d, y: %d\n", prevX, prevY, x, y);
+//         }
+//         prevX = x;
+//         prevY = y;
+//     }
+// }
 
 // Update the viewport
 void update_viewport(setup_t *setup, int thickness) {
+    graph_data_t *g = setup->graph;
     if (setup->image) mlx_delete_image(setup->mlx, setup->image);
     setup->image = mlx_new_image(setup->mlx, setup->data->vp_size, setup->data->vp_size);
     if (!setup->image) {
         fprintf(stderr, "Failed to create image\n");
         return;
     }
-    int centerX = setup->data->vp_size / 2;
-    int centerY = setup->data->vp_size / 2;
-    draw_complex_pattern(setup, setup->image, centerX, centerY, thickness);
+    // int centerX = setup->data->vp_size / 2;
+    // int centerY = setup->data->vp_size / 2;
+    //fprintf(stderr, "centerX: %d, centerY: %d\n", centerX, centerY);
+    //draw_complex_pattern(setup, setup->image, centerX, centerY, thickness);
+    g->start_x = setup->data->vp_size / 2;
+    g->start_y = setup->data->vp_size / 2;
+    fprintf(stderr, "g->start_x: %d, g->start_y: %d\n", g->start_x, g->start_y);
+    draw_complex_pattern(setup, setup->image, g);
     mlx_image_to_window(setup->mlx, setup->image, setup->data->vp_position_x, setup->data->vp_position_y);
 }
 
