@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/06 05:38:41 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/06 14:17:37 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -530,52 +530,126 @@ void event_handler(mlx_key_data_t keydata, void *param)
     key_hook(keydata, assets->player);
     
 }
-map_t *load_map(char *path)
+void def_map(map_t *map)
+{
+    map->grid = NULL;
+    map->rows = 0;
+    map->cols = 0;
+    map->player_count = 0;
+    map->collectible_count = 0;
+    map->exit_count = 0;
+    map->is_valid = false;
+}
+map_t *load_map(char *path, map_t *map)
 {
     int fd;
-   size_t x = 0;
-   size_t y = 0;
-   char *line = NULL;
-   fprintf(stderr, "path: %s\n", path);
+    int x = 0;
+    int y = 0;
+    char *line = NULL;
+    def_map(map);
     fd = open(path, O_RDONLY);
     fprintf(stderr, "fd: %d\n", fd);
+    map->grid = malloc(sizeof(char *) * (map->cols + 1));
+    if (map->grid == NULL)
+    {
+        fprintf(stderr, "Failed to allocate memory for map grid\n");
+        return NULL;
+    }
     while ((line = get_next_line(fd)) != NULL)
     {
-        fprintf(stderr, " line: %s\n", line);
-        x = ft_strlen(line);
-        y++;
-        fprintf(stderr, "x: %ld\n", x);
-        
-        free(line);
+        if (line[0])
+        {
+            if (map->cols == 0)
+            {
+                map->cols = ft_strlen(line);
+                fprintf(stderr, "cols: %ld\n", map->cols);
+                free(map->grid);
+                map->grid = malloc(sizeof(char *) * (map->cols + 1));
+                if (map->grid == NULL)
+                {
+                    fprintf(stderr, "Failed to allocate memory for map grid 2\n");
+                    return NULL;
+                }
+                fprintf(stderr, "cols updated:\n");
+            }
+            map->grid[x] = line;
+            fprintf(stderr, "x: %d\n", x);
+            x++;
+            map->rows++;
+            fprintf(stderr, "line: %s\n", line);
+            fprintf(stderr, "map->grid: %s\n", map->grid[x - 1]);
+            fprintf(stderr, "rows: %ld\n", map->rows);
+        }
+        else
+        {
+            free(line);
+        }
     }
-    fprintf(stderr, "y: %ld\n", y);
-//     line =get_next_line(fd);
-//     if (line == NULL)
-//     {
-//         fprintf(stderr, "Failed to read line\n");
-//     }
-    
-//     fprintf(stderr, "line: %s\n", line);
-//    x = ft_strlen(line);
-//     fprintf(stderr, "x: %ld\n", x);
-//     free(line);
+    fprintf(stderr, "y: %d\n", y);
+    map->grid[x] = NULL;
     close(fd);
-    return NULL;
+    fprintf(stderr, "map load map : %p\n", map);
+    return (map);
 }
+map_t *init_map(char *path)
+{
+    map_t *map;
 
+    map = malloc(sizeof(map_t));
+    if (!map)
+    {
+        fprintf(stderr, "Failed to allocate memory for map\n");
+        return NULL;
+    }
 
+    map = load_map(path, map);
+    fprintf(stderr, "map init map : %p\n", map);
+    return (map);
+}
 // Main function
 int main() 
 {
     mlx_t *mlx;
     assets_t *assets;
+    map_t *map;
+    char *path = "map.ber";
+    size_t i = 0;
+    size_t j = 0;
 
     mlx = init_mlx_session(WINDOW_WIDTH, WINDOW_HEIGHT, "Lost in Void");
     assets = init_assets(mlx);
-    char *path = "map.ber";
-    fprintf(stderr, "path: %s\n", path);
-    map_t *map = load_map(path);
-    fprintf(stderr, "map: %p\n", map);
+    map = init_map(path);
+
+    fprintf(stderr, "map->rows: %ld\n", map->rows);
+    fprintf(stderr, "map->cols: %ld\n", map->cols);
+    fprintf(stderr, "map->player_count: %d\n", map->player_count);
+    fprintf(stderr, "map->collectible_count: %d\n", map->collectible_count);
+    fprintf(stderr, "map->exit_count: %d\n", map->exit_count);
+    fprintf(stderr, "map->is_valid: %d\n", map->is_valid);
+    i = 0;
+    while (i < map->rows) 
+    {
+        j = 0;
+        while (j < map->cols)
+        {
+            fprintf(stderr, "%c", map->grid[i][j]);
+            j++;
+        }
+        fprintf(stderr, "\n");
+        i++;
+    }
+    // fprintf(stderr, "map->grid: %s\n", map->grid[1]);
+    // fprintf(stderr, "map->grid: %s\n", map->grid[2]);
+    // fprintf(stderr, "map->grid: %s\n", map->grid[3]);
+    // fprintf(stderr, "map->grid: %s\n", map->grid[4]);
+    // fprintf(stderr, "map->grid: %s\n", map->grid[5]);
+    // fprintf(stderr, "map->grid: %s\n", map->grid[6]);
+    // fprintf(stderr, "map->grid: %s\n", map->grid[7]);
+    // fprintf(stderr, "map->grid: %s\n", map->grid[8]);
+    // fprintf(stderr, "map->grid: %s\n", map->grid[9]);
+    fprintf(stderr, "map : %p\n", map);
+    
+  
     render(assets);
    
    mlx_key_hook(mlx, event_handler, assets);

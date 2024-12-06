@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 15:29:58 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/06 05:15:50 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/06 12:46:47 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,8 +136,10 @@ typedef struct map_s
 {
 	assets_t *assets;
 	char **grid;
-	int rows;
-	int cols; 
+	size_t rows;
+	size_t cols;
+	int player_count;
+	int coords; 
 	int collectible_count;
     int exit_count;
     bool is_valid;
