@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 15:29:58 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/04 17:19:26 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/06 05:15:50 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,12 +25,17 @@
 #include "MLX42/MLX42_Int.h"
 #include <inttypes.h>
 #include <stdbool.h>
+#include <unistd.h>
+#include <string.h>
+#include <fcntl.h>
 // #include "minilibx-linux/mlx.h"
 
 #define M_PI 3.14159265358979323846
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 #define VIEWPORT_SIZE 50
+
+#define BUFFER_SIZE 1024
 // typedef struct tst_node tst_node_t;
 // typedef struct complex_data complex_data_t;
 // typedef struct graph_data graph_data_t;
@@ -127,6 +132,17 @@ typedef struct assets_s
 	game_t *player;
 } assets_t;
 
+typedef struct map_s
+{
+	assets_t *assets;
+	char **grid;
+	int rows;
+	int cols; 
+	int collectible_count;
+    int exit_count;
+    bool is_valid;
+
+} map_t;
 
 void bresen_line(mlx_image_t *img, graph_data_t *graph_data, vp_t *viewport);
 //void key_hook(mlx_key_data_t keydata, void *param);
@@ -145,4 +161,17 @@ void print_all(setup_t *setup);
 void updateViewport(setup_t *setup , int thickness);
 void init_graph(graph_data_t *graph);
 void customizer(game_t *aset, assets_t *assets);
+
+
+char	*get_next_line(int fd);
+char	*ft_reader(int fd, char *result);
+char	*ft_line(char *string_buffer);
+char	*ft_next(char *string_buffer);
+size_t	ft_strlen(char *result);
+char	*ft_strrchr(char *result, int c);
+char	*ft_strjoin(char *result, char *string_buffer);
+char	*ft_strdup(char *s);
+void	*ft_memcpy(void *dest, const void *src, size_t n);
+
+
 #endif

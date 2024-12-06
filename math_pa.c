@@ -6,12 +6,191 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/04 19:31:40 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/06 05:24:43 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "lost_in_void.h"
 
+void	*ft_memcpy(void *dest, const void *src, size_t n)
+{
+	size_t		i;
+
+	i = 0;
+	while (i < n)
+	{
+		((unsigned char *)dest)[i] = ((unsigned char *)src)[i];
+		i++;
+	}
+	return (dest);
+}
+
+char	*ft_strdup(char *s)
+{
+	unsigned int	i;
+	char		*dest;
+
+	i = ft_strlen(s);
+	dest = (char *)malloc(sizeof(char) * (i + 1));
+	if (!(dest))
+	{
+		return (NULL);
+	}
+	return (ft_memcpy(dest, s, i + 1));
+}
+
+size_t	ft_strlen(char *result)
+{
+	size_t	i;
+
+	i = 0;
+	if (!result)
+		return (0);
+	while (result[i] != '\0')
+		i++;
+	return (i);
+}
+
+char	*ft_strrchr(char *result, int c)
+{
+	int	i;
+
+	i = 0;
+	if (!result)
+		return (0);
+	if (c == '\0')
+		return ((char *)&result[ft_strlen(result)]);
+	while (result[i])
+	{
+		if (result[i] == (char)c)
+		{
+			return ((char *)&result[i]);
+		}
+		i++;
+	}
+	return (0);
+}
+
+char	*ft_strjoin(char *result, char *string_buffer)
+{
+	size_t	i;
+	size_t	j;
+	char	*new_s;
+
+	if (!(result))
+	{
+		result = (char *)malloc(1 * sizeof(char));
+		result[0] = '\0';
+	}
+	if (!result || !string_buffer)
+		return (NULL);
+	new_s = (char *)malloc(((ft_strlen(result))
+				+ (ft_strlen(string_buffer)) + 1) * (sizeof(char)));
+	if (!new_s)
+		return (NULL);
+	i = -1;
+	j = 0;
+	if (result)
+		while (result[++i] != '\0')
+			new_s[i] = result[i];
+	while (string_buffer[j] != '\0')
+		new_s[i++] = string_buffer[j++];
+	new_s[ft_strlen(result) + ft_strlen(string_buffer)] = '\0';
+	free(result);
+	return (new_s);
+}
+char	*ft_next(char *string_buffer)
+{
+	char	*next;
+	int		i;
+	int		j;
+
+	i = 0;
+	while (string_buffer[i] && string_buffer[i] != '\n')
+		i++;
+	if (!string_buffer[i])
+	{
+		free(string_buffer);
+		return (NULL);
+	}
+	next = malloc((ft_strlen(string_buffer) - i + 1) * sizeof(char));
+	i++;
+	j = 0;
+	while (string_buffer[i])
+	{
+		next[j++] = string_buffer[i++];
+	}
+	next[j] = '\0';
+	free(string_buffer);
+	return (next);
+}
+
+char	*ft_line(char *string_buffer)
+{
+	char	*line;
+	int		i;
+
+	i = 0;
+	if (string_buffer[i] == '\0')
+		return (NULL);
+	while (string_buffer[i] && string_buffer[i] != '\n')
+		i++;
+	line = (char *)malloc((i + 2) * sizeof(char));
+	if (line == 0)
+		return (NULL);
+	i = 0;
+	while (string_buffer[i] && string_buffer[i] != '\n')
+	{
+		line[i] = string_buffer[i];
+		i++;
+	}
+	if (string_buffer[i] == '\n')
+	{
+		line[i] = string_buffer[i];
+		i++;
+	}
+	line[i] = '\0';
+	return (line);
+}
+
+char	*ft_reader(int fd, char *result)
+{
+	char	*string_buffer;
+	int		byte;
+
+	string_buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!string_buffer)
+		return (NULL);
+	byte = 1;
+	while ((!ft_strrchr(result, '\n')) && byte != 0)
+	{
+		byte = read(fd, string_buffer, BUFFER_SIZE);
+		if (byte == -1)
+		{
+			free(string_buffer);
+			return (NULL);
+		}
+		string_buffer[byte] = '\0';
+		result = ft_strjoin(result, string_buffer);
+	}
+	free(string_buffer);
+	return (result);
+}
+
+char	*get_next_line(int fd)
+{
+	static char	*string_buffer;
+	char		*line;
+
+	if (fd < 0 || BUFFER_SIZE < 0)
+		return (NULL);
+	string_buffer = ft_reader(fd, string_buffer);
+	if (!string_buffer)
+		return (NULL);
+	line = ft_line(string_buffer);
+	string_buffer = ft_next(string_buffer);
+	return (line);
+}
 
 
 void init_complex_data(complex_data_t *complex) {
@@ -178,28 +357,28 @@ void update_viewport(setup_t *setup, int thickness) {
 
 // Handle key events
 void key_hook(mlx_key_data_t keydata, void *param) {
-    setup_t *setup = (setup_t *)param;
+    game_t *who = (game_t *)param;
     static int thickness = 1;
-    complex_data_t *c = setup->complex;
+    complex_data_t *c = who->setup->complex;
 
     if (keydata.key == MLX_KEY_S) {
         c->wave_amplitude += 2;
-        setup->data->vp_position_y += 10;
+        who->setup->data->vp_position_y += 10;
     }
     if (keydata.key == MLX_KEY_W) {
         c->wave_amplitude -= 2;
-        setup->data->vp_position_y -= 10;
+        who->setup->data->vp_position_y -= 10;
     }
     if (keydata.key == MLX_KEY_D) {
         c->wave_freq += 0.2;
-        setup->data->vp_position_x += 10;
+        who->setup->data->vp_position_x += 10;
     }
     if (keydata.key == MLX_KEY_A) {
         c->wave_freq -= 0.2;
-        setup->data->vp_position_x -= 10;
+        who->setup->data->vp_position_x -= 10;
     }
 
-    update_viewport(setup, thickness);
+    update_viewport(who->setup, thickness);
 }
 
 void free_game(game_t *game) 
@@ -212,15 +391,6 @@ void free_game(game_t *game)
 }
 
 
-// void mlx_data(game_t *game) 
-// {
-//      //env_back->mlx = mlx;
-//     update_viewport(game->setup, 1);
-//     //update_viewport(env_back, 1);
-//     mlx_key_hook(game->setup->mlx, key_hook, game->setup);
-  
-
-// }
 void custumize_game(game_t *game) 
 {
     game->setup->complex->wave_amplitude = 10;
@@ -264,8 +434,8 @@ void custumize_enemy(game_t *enemy)
 }
 void custumize_player(game_t *player)
 {
-    player->setup->data->vp_position_x = 300.0f;
-    player->setup->data->vp_position_y = 300.0f;
+    player->setup->data->vp_position_x = WINDOW_WIDTH / 2;
+    player->setup->data->vp_position_y = WINDOW_HEIGHT / 2;
     player->setup->graph->color = 0x00FF7FFF; 
 }
 
@@ -273,10 +443,11 @@ void custumizer_pass(assets_t *assets)
 {
     customizer(assets->game, assets);
     customizer(assets->env_back, assets);
+    customizer(assets->player, assets);
     customizer(assets->env_front, assets);
     customizer(assets->colect, assets);
     customizer(assets->enemy, assets);
-    customizer(assets->player, assets);
+   
 }
 void customizer(game_t *aset, assets_t *assets)
 {
@@ -284,14 +455,17 @@ void customizer(game_t *aset, assets_t *assets)
         custumize_game(assets->game);
     else if (aset == assets->env_back)
         custumize_env_back(assets->env_back);
+    else if (aset == assets->player)
+        custumize_player(assets->player);
     else if (aset == assets->env_front)
         custumize_env_front(assets->env_front);
     else if (aset == assets->colect)
         custumize_colect(assets->colect);
     else if (aset == assets->enemy)
         custumize_enemy(assets->enemy);
-    else if (aset == assets->player)
-        custumize_player(assets->player);
+    
+    else
+        return;
 }
 assets_t *init_assets(mlx_t *mlx) 
 {
@@ -305,17 +479,19 @@ assets_t *init_assets(mlx_t *mlx)
 
     assets->game = init_game();
     assets->env_back = init_game();
+    assets->player = init_game();
     assets->env_front = init_game();
     assets->colect = init_game();
     assets->enemy = init_game();
-    assets->player = init_game();
+    
 
     assets->game->setup->mlx = mlx;
     assets->env_back->setup->mlx = mlx;
+    assets->player->setup->mlx = mlx;
     assets->env_front->setup->mlx = mlx;
     assets->colect->setup->mlx = mlx;
     assets->enemy->setup->mlx = mlx;
-    assets->player->setup->mlx = mlx;
+   
 
     custumizer_pass(assets);
     
@@ -324,30 +500,7 @@ assets_t *init_assets(mlx_t *mlx)
 }
 
 
-// game_t *asset(assets_t *assets, int flag)
-// {
-//     if (flag == 0)
-//         return (assets->player);
-//     else if (flag == 1)
-//         return (assets->game);
-//     else if (flag == 2)
-//         return (assets->env_back);
-//     else if (flag == 3)
-//         return (assets->env_front);
-//     else if (flag == 4)
-//         return (assets->colect);
-//     else if (flag == 5)
-//         return (assets->enemy);
-//     else
-//         return (NULL);
-// }
-
-// void create_player(game_t *player, mlx_t *mlx)
-// {
-//     player->setup->mlx = mlx;
-//     mlx_data(player);
-// }
-
+// MLX functions
 mlx_t *init_mlx_session(int32_t width, int32_t height, char *title)
 {
     mlx_t *mlx;
@@ -362,6 +515,7 @@ mlx_t *init_mlx_session(int32_t width, int32_t height, char *title)
 
 void render(assets_t *assets)
 {
+    update_viewport(assets->player->setup, 1);
     update_viewport(assets->game->setup, 1);
     update_viewport(assets->env_back->setup, 1);
     update_viewport(assets->env_front->setup, 1);
@@ -373,8 +527,40 @@ void render(assets_t *assets)
 void event_handler(mlx_key_data_t keydata, void *param)
 {
     assets_t *assets = (assets_t *)param;
-    key_hook(keydata, assets->player->setup);
+    key_hook(keydata, assets->player);
     
+}
+map_t *load_map(char *path)
+{
+    int fd;
+   size_t x = 0;
+   size_t y = 0;
+   char *line = NULL;
+   fprintf(stderr, "path: %s\n", path);
+    fd = open(path, O_RDONLY);
+    fprintf(stderr, "fd: %d\n", fd);
+    while ((line = get_next_line(fd)) != NULL)
+    {
+        fprintf(stderr, " line: %s\n", line);
+        x = ft_strlen(line);
+        y++;
+        fprintf(stderr, "x: %ld\n", x);
+        
+        free(line);
+    }
+    fprintf(stderr, "y: %ld\n", y);
+//     line =get_next_line(fd);
+//     if (line == NULL)
+//     {
+//         fprintf(stderr, "Failed to read line\n");
+//     }
+    
+//     fprintf(stderr, "line: %s\n", line);
+//    x = ft_strlen(line);
+//     fprintf(stderr, "x: %ld\n", x);
+//     free(line);
+    close(fd);
+    return NULL;
 }
 
 
@@ -386,9 +572,13 @@ int main()
 
     mlx = init_mlx_session(WINDOW_WIDTH, WINDOW_HEIGHT, "Lost in Void");
     assets = init_assets(mlx);
-
+    char *path = "map.ber";
+    fprintf(stderr, "path: %s\n", path);
+    map_t *map = load_map(path);
+    fprintf(stderr, "map: %p\n", map);
     render(assets);
-    mlx_key_hook(mlx, key_hook, assets->player->setup);
+   
+   mlx_key_hook(mlx, event_handler, assets);
 
     
     mlx_loop(mlx);
