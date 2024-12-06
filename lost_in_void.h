@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 15:29:58 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/06 12:46:47 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/06 16:27:40 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,6 +141,7 @@ typedef struct map_s
 	int player_count;
 	int coords; 
 	int collectible_count;
+	int walls;
     int exit_count;
     bool is_valid;
 

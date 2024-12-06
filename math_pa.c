@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/06 14:17:37 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/06 16:32:31 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -538,6 +538,7 @@ void def_map(map_t *map)
     map->player_count = 0;
     map->collectible_count = 0;
     map->exit_count = 0;
+    map->walls = 1;
     map->is_valid = false;
 }
 map_t *load_map(char *path, map_t *map)
@@ -561,7 +562,7 @@ map_t *load_map(char *path, map_t *map)
         {
             if (map->cols == 0)
             {
-                map->cols = ft_strlen(line);
+                map->cols = ft_strlen(line) - 1;
                 fprintf(stderr, "cols: %ld\n", map->cols);
                 free(map->grid);
                 map->grid = malloc(sizeof(char *) * (map->cols + 1));
@@ -591,6 +592,70 @@ map_t *load_map(char *path, map_t *map)
     fprintf(stderr, "map load map : %p\n", map);
     return (map);
 }
+void check_walls(map_t *map)
+{
+    size_t i = 0;
+    size_t j = 0;
+    
+    fprintf(stderr, "check_walls\n");
+   
+    j = 0;
+    while (j < map->cols)
+    {
+        if (map->grid[0][j] != '1' || map->grid[map->rows - 1][j] != '1')
+        {
+            fprintf(stderr, "map->grid[0][j]: %c\n", map->grid[0][j]);
+            map->walls = 0;
+            fprintf(stderr, "map not valid at position: i: %ld j: %ld , (ASCII :%d\n",i, j, map->grid[i][j]);
+        }
+        
+        j++;
+    }
+    i = 0;
+    while (i < map->rows)
+    {
+        if (map->grid[i][0] != '1' || map->grid[i][map->cols - 1] != '1')
+        {
+            fprintf(stderr, "map->grid[i][0]: %c\n", map->grid[i][0]);
+            map->walls = 0;
+            fprintf(stderr, "map not valid at position: i: %ld j: %ld , (ASCII :%d\n",i, j, map->grid[i][j]);
+        }
+        i++;
+    }
+    fprintf(stderr, "map->grid[7][19]: %c\n", map->grid[7][19]);
+    
+}
+void map_checks(map_t *map)
+{
+    fprintf(stderr, "map address: %p\n", map);
+    size_t i = 0;
+    size_t j = 0;
+    while (i < map->rows)
+    {
+        j = 0;
+        fprintf(stderr, "map->rows: %ld\n", map->rows);
+        while (j < map->cols)
+        {
+            
+            fprintf(stderr, "map->cols: %ld\n", map->cols);
+            if (map->grid[i][j] == 'P')
+                map->player_count++;
+            else if (map->grid[i][j] == 'C')
+                map->collectible_count++;
+            else if (map->grid[i][j] == 'E')
+                map->exit_count++;
+            fprintf(stderr, "map->grid[%ld][%ld]: %c\n", i, j, map->grid[i][j]);
+            j++;
+        }
+        fprintf(stderr, "map->grid[%ld]: %s \n", i, map->grid[i]);
+        i++;
+    }
+    check_walls(map);
+    fprintf(stderr, "map walls checked %d\n", map->is_valid);
+    fprintf(stderr, "player_count: %d, collectible_count: %d, exit_count: %d\n", map->player_count, map->collectible_count, map->exit_count);
+    map->is_valid = (map->player_count == 1) && (map->collectible_count > 0) && (map->exit_count == 1) && (map->walls == 1);
+    fprintf(stderr, "is_valid: %d\n", map->is_valid);
+}
 map_t *init_map(char *path)
 {
     map_t *map;
@@ -603,6 +668,7 @@ map_t *init_map(char *path)
     }
 
     map = load_map(path, map);
+    map_checks(map);
     fprintf(stderr, "map init map : %p\n", map);
     return (map);
 }
@@ -620,12 +686,6 @@ int main()
     assets = init_assets(mlx);
     map = init_map(path);
 
-    fprintf(stderr, "map->rows: %ld\n", map->rows);
-    fprintf(stderr, "map->cols: %ld\n", map->cols);
-    fprintf(stderr, "map->player_count: %d\n", map->player_count);
-    fprintf(stderr, "map->collectible_count: %d\n", map->collectible_count);
-    fprintf(stderr, "map->exit_count: %d\n", map->exit_count);
-    fprintf(stderr, "map->is_valid: %d\n", map->is_valid);
     i = 0;
     while (i < map->rows) 
     {
