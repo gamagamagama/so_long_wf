@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 15:29:58 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/06 16:27:40 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/07 17:52:06 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@
 // typedef struct setup setup_t;
 
 
-
+typedef struct assets_s assets_t;
 
 typedef struct tst_node
 {
@@ -72,6 +72,7 @@ typedef struct complex_data_s
 	double	time;
 	double	spiral_fact;
 	double	depth;
+	double	variable;
 
 } complex_data_t;
 
@@ -120,6 +121,7 @@ typedef struct setup_s
 typedef struct game_s
 {
 	setup_t *setup;
+	assets_t *assets;
 } game_t;
 
 typedef struct assets_s
@@ -161,7 +163,7 @@ void init_graph(graph_data_t *graph);
 void draw_square(setup_t *setup, uint32_t color);
 void set_up(setup_t *setup);
 void print_all(setup_t *setup);
-void updateViewport(setup_t *setup , int thickness);
+void updateViewport(game_t *asset , int thickness);
 void init_graph(graph_data_t *graph);
 void customizer(game_t *aset, assets_t *assets);
 

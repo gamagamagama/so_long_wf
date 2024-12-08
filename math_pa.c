@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/06 16:32:31 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/08 04:01:28 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,6 +205,7 @@ void init_complex_data(complex_data_t *complex) {
     complex->delta = M_PI / 4;
     complex->scale_fact = 0.1;
     complex->time = 0; 
+    complex->variable = 1;
 }
 
 
@@ -247,11 +248,13 @@ game_t *init_game() {
         fprintf(stderr, "Failed to allocate memory for setup\n");
         exit(EXIT_FAILURE);
     }
+    
     game->setup = malloc(sizeof(setup_t));
     game->setup->complex = malloc(sizeof(complex_data_t));
     game->setup->data = malloc(sizeof(vp_t));
     game->setup->node = malloc(sizeof(node_t));
     game->setup->graph = malloc(sizeof(graph_data_t));
+
     if (!game->setup->complex || !game->setup->data || !game->setup->node || !game->setup->graph || !game->setup) {
         fprintf(stderr, "Failed to allocate memory for sub-structures\n");
         exit(EXIT_FAILURE);
@@ -319,43 +322,259 @@ void draw_thick_line(mlx_image_t *img, graph_data_t *g)
 }
 
 // Draw the pattern
-void draw_complex_pattern(setup_t *setup, mlx_image_t *img, graph_data_t *g)
+void recompute_c_variable(complex_data_t *c, assets_t *asset, game_t *ass) 
+{
+//    fprintf(stderr, "adress of ass in recompute: %p\n", ass);
+//    fprintf(stderr, "adress of asset in recompute: %p\n", asset);
+//    fprintf(stderr, "adress of ass->assets_colect in recompute: %p\n", ass->assets->colect);
+//     fprintf(stderr, "adress of asset->colect in recompute: %p\n", asset->colect);
+    int i = 10;
+    if (!(ass || c))
+    {
+        free(c);
+        free(ass);
+        exit(EXIT_FAILURE);
+    }
+   // fprintf(stderr, "adress of game_t ass: %p\n adress of assets_t asset->colect: %p\n", ass, asset->colect);
+    if (ass == asset->colect)
+    {
+        c->variable = tan(c->wave_freq) * M_PI;
+    }
+    else
+        c->variable = 1;
+        
+    
+    
+}
+void draw_complex_pattern(game_t *asset, mlx_image_t *img, graph_data_t *g)
 { 
-    complex_data_t *c = setup->complex;
+    assets_t *ass = asset->assets;
+    complex_data_t *c = asset->setup->complex;
     int center; 
-    center = setup->data->vp_size / 2;
+    center = asset->setup->data->vp_size / 2;
     g->start_x = center;
     g->start_y = center;
-   // g->color = 0x007F7FFF;
+    recompute_c_variable(c, ass, asset);
+   // fprintf(stderr, "adress of ass: %p\n", ass);
     c->time = 0;
     while (c->time < (2 * M_PI * c->depth)) 
     {
         
-        g->end_x = center + (int)(c->scale_fact * ((c->A + c->time * c->spiral_fact) * sin(c->a * c->time + c->delta) + c->wave_amplitude * sin(c->wave_freq * c->time))); //* tan(c->wave_freq) * M_PI));
-        g->end_y = center + (int)(c->scale_fact * ((c->B + c->time * c->spiral_fact) * cos(c->b * c->time) + c->wave_amplitude * cos(c->wave_freq * c->time)));  //* tan(c->wave_freq) * M_PI));
+        g->end_x = center + (int)(c->scale_fact * ((c->A + c->time * c->spiral_fact) * sin(c->a * c->time + c->delta) + c->wave_amplitude * sin(c->wave_freq * c->time)* c->variable)); //* tan(c->wave_freq) * M_PI));
+        g->end_y = center + (int)(c->scale_fact * ((c->B + c->time * c->spiral_fact) * cos(c->b * c->time) + c->wave_amplitude * cos(c->wave_freq * c->time)* c->variable));  //* tan(c->wave_freq) * M_PI));
         if (g->end_x >= 0 && g->end_x < img->width && g->end_y >= 0 && g->end_y < img->height) {
             draw_thick_line(img, g);
         }
         c->time += 0.05;
         g->start_x = g->end_x;
         g->start_y = g->end_y;
+        //recompute_c_variable(c, ass, asset);
+       // fprintf(stderr, "c->variable: %f\n", c->variable);
     }
 }
 
 // Update the viewport
-void update_viewport(setup_t *setup, int thickness) {
-    graph_data_t *g = setup->graph;
-    if (setup->image) mlx_delete_image(setup->mlx, setup->image);
-    setup->image = mlx_new_image(setup->mlx, setup->data->vp_size, setup->data->vp_size);
-    if (!setup->image) {
+void update_viewport(game_t *asset, double thickness) {
+    graph_data_t *g = asset->setup->graph;
+    
+    if (asset->setup->image) mlx_delete_image(asset->setup->mlx, asset->setup->image);
+    asset->setup->image = mlx_new_image(asset->setup->mlx, asset->setup->data->vp_size, asset->setup->data->vp_size);
+    if (!asset->setup->image) {
         fprintf(stderr, "Failed to create image\n");
         return;
     }
-    draw_complex_pattern(setup, setup->image, g);
-    mlx_image_to_window(setup->mlx, setup->image, setup->data->vp_position_x, setup->data->vp_position_y);
-}
+    if (asset == asset->assets->env_back)
+    {
+        while (asset->setup->data->vp_position_x < (WINDOW_WIDTH - 100))
+        {
+            asset->setup->data->vp_position_x += 20;
+            mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
 
+        }
+        
+    }
+    
+    draw_complex_pattern(asset, asset->setup->image, g);
+   // mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
+}
+void collectable_animation(game_t *who) 
+{
+    static double counter = 0;
+    if ((counter < 10.0f))
+    {   
+        counter += 0.1f;
+        who->setup->complex->wave_freq += 0.1f;  
+    }
+    if (counter > 10.0f)
+        who->setup->complex->wave_freq -= 0.1f;
+    if(who->setup->complex->wave_freq <= 0.0f)
+        counter = 0.0f;
+
+}
+void wall_animation(game_t *who)
+{
+    static double counter = 0;
+    if ((counter < 10.0f))
+    {   
+        counter += 0.1f;
+        who->setup->complex->wave_freq += 0.1f;  
+    }
+    if (counter > 10.0f)
+        who->setup->complex->wave_freq -= 0.1f;
+    if(who->setup->complex->wave_freq <= 0.0f)
+        counter = 0.0f;
+}
+void time_hook( void *param) 
+{
+    assets_t *asset = (assets_t *)param;
+    
+    game_t *who;
+    //asset = who->assets;
+    if (who = asset->colect)
+       collectable_animation(who);
+       update_viewport(who, who->setup->graph->thickness);
+    if (who = asset->env_front)
+        wall_animation(who);
+        update_viewport(who, who->setup->graph->thickness);
+    
+    
+   // who->setup->complex->wave_amplitude = 1;
+    update_viewport(who, who->setup->graph->thickness);
+}
 // Handle key events
+void key_hooker(mlx_key_data_t keydata, void *param) {
+    game_t *who = (game_t *)param;
+   static int thickness = 1;
+    complex_data_t *c = who->setup->complex;
+    graph_data_t *g = who->setup->graph;
+    assets_t *asset = who->assets;
+
+    if (keydata.key == MLX_KEY_Q) {
+        c->wave_amplitude += 10;
+        //who->setup->data->vp_position_y += 10;
+    }
+    if (keydata.key == MLX_KEY_W) {
+        c->wave_amplitude -= 10;
+       // who->setup->data->vp_position_y -= 10;
+    }
+    if (keydata.key == MLX_KEY_E) {
+        c->wave_freq += 0.1;
+        //who->setup->data->vp_position_x += 10;
+    }
+    if (keydata.key == MLX_KEY_R) {
+        c->wave_freq -= 0.1;
+        //who->setup->data->vp_position_x -= 10;
+    }
+    if (keydata.key == MLX_KEY_T)
+    {
+        c->A += 10;
+    }
+    if (keydata.key == MLX_KEY_Y)
+    {
+        c->A -= 10;
+    }
+    if (keydata.key == MLX_KEY_U)
+    {
+        c->B += 10;
+    }
+    if (keydata.key == MLX_KEY_I)
+    {
+        c->B -= 10;
+    }
+    if (keydata.key == MLX_KEY_O)
+    {
+        c->a += 0.1;
+    }
+    if (keydata.key == MLX_KEY_P)
+    {
+        c->a -= 0.1;
+    }
+    if (keydata.key == MLX_KEY_A)
+    {
+        c->b += 0.1;
+    }
+    if (keydata.key == MLX_KEY_S)
+    {
+        c->b -= 0.1;
+    }
+    if (keydata.key == MLX_KEY_D)
+    {
+        c->delta += 0.1;
+    }
+    if (keydata.key == MLX_KEY_F)
+    {
+        c->delta -= 0.1;
+    }
+    if (keydata.key == MLX_KEY_G)
+    {
+        c->scale_fact += 0.01;
+    }
+    if (keydata.key == MLX_KEY_H)
+    {
+        c->scale_fact -= 0.01;
+    }
+    if (keydata.key == MLX_KEY_J)
+    {
+        c->time += 1.1;
+    }
+    if (keydata.key == MLX_KEY_K)
+    {
+        c->time -= 1.1;
+    }
+    if (keydata.key == MLX_KEY_Z)
+    {
+        c->spiral_fact += 1.0;
+    }
+    if (keydata.key == MLX_KEY_X)
+    {
+        c->spiral_fact -= 1.0;
+    }
+    if (keydata.key == MLX_KEY_C)
+    {
+        c->depth += 0.1;
+    }
+    if (keydata.key == MLX_KEY_V)
+    {
+        c->depth -= 0.1;
+    }
+   if (keydata.key == MLX_KEY_LEFT)
+   {
+       who->setup->data->vp_position_x -= 10;
+       fprintf(stderr, "vp_position_x: %f\n", who->setup->data->vp_position_x);
+   }
+   if (keydata.key == MLX_KEY_RIGHT)
+   {
+       who->setup->data->vp_position_x += 10;
+       fprintf(stderr, "vp_position_x: %f\n", who->setup->data->vp_position_x);
+   }
+   if (keydata.key == MLX_KEY_UP)
+   {
+       who->setup->data->vp_position_y -= 10;
+       fprintf(stderr, "vp_position_y: %f\n", who->setup->data->vp_position_y);
+   }
+   if (keydata.key == MLX_KEY_DOWN)
+   {
+       who->setup->data->vp_position_y += 10;
+        fprintf(stderr, "vp_position_y: %f\n", who->setup->data->vp_position_y);
+
+   }
+   if (keydata.key == MLX_KEY_N)
+   {
+     fprintf(stderr, "who : %p\n", who);
+    fprintf(stderr," asset->env_front: %p\n, asset->env_back: %p\n ", asset->env_front, asset->env_back);
+
+   }
+   
+    
+    if (keydata.key == MLX_KEY_M)
+    {
+        fprintf(stderr, "wave_amplitude: %f\n wave_freq: %f\n A: %f\n B: %f\n a: %f\n b: %f\n delta: %f\n scale_fact: %f\n time: %f\n spiral_fact: %f\n depth: %f\n", c->wave_amplitude, c->wave_freq, c->A, c->B, c->a, c->b, c->delta, c->scale_fact, c->time, c->spiral_fact, c->depth);
+    }
+    
+    
+  //  fprintf(stderr, "wave_amplitude: %f\n wave_freq: %f\n vp_position_x: %f\n vp_position_y: %f\n", c->wave_amplitude, c->wave_freq, who->setup->data->vp_position_x, who->setup->data->vp_position_y);
+    update_viewport(who, thickness);
+}
 void key_hook(mlx_key_data_t keydata, void *param) {
     game_t *who = (game_t *)param;
     static int thickness = 1;
@@ -377,8 +596,8 @@ void key_hook(mlx_key_data_t keydata, void *param) {
         c->wave_freq -= 0.2;
         who->setup->data->vp_position_x -= 10;
     }
-
-    update_viewport(who->setup, thickness);
+  //  fprintf(stderr, "wave_amplitude: %f\n wave_freq: %f\n vp_position_x: %f\n vp_position_y: %f\n", c->wave_amplitude, c->wave_freq, who->setup->data->vp_position_x, who->setup->data->vp_position_y);
+    update_viewport(who, thickness);
 }
 
 void free_game(game_t *game) 
@@ -403,9 +622,12 @@ void custumize_env_back(game_t *env_back)
 {
     env_back->setup->complex->wave_amplitude = 8;
     env_back->setup->complex->wave_freq = 1.5;
-    env_back->setup->data->vp_position_x = 250;
-    env_back->setup->data->vp_position_y = 250;
-    env_back->setup->graph->color = 0x00FF00FF; // Green
+   // env_back->setup->data->vp_size = 800;
+ 
+   // env_back->setup->complex->scale_fact = 3;
+    env_back->setup->data->vp_position_x = 0;
+    env_back->setup->data->vp_position_y = 0;
+    env_back->setup->graph->color = 0xFF0000FF; // RED
 }
 
 void custumize_env_front(game_t *env_front)
@@ -414,11 +636,12 @@ void custumize_env_front(game_t *env_front)
     env_front->setup->complex->wave_freq = 1.5;
     env_front->setup->data->vp_position_x = 0;
     env_front->setup->data->vp_position_y = 0;
-    env_front->setup->graph->color = 0x007F00FF; 
+    env_front->setup->graph->color = 0xFFFFFFFF; 
 }
 void custumize_colect(game_t *colect)
 {
     colect->setup->complex->wave_amplitude = 8;
+    colect->setup->complex->variable =  tan(colect->setup->complex->wave_freq) * M_PI;
     colect->setup->complex->wave_freq = 1.5;
     colect->setup->data->vp_position_x = 0;
     colect->setup->data->vp_position_y = 100;
@@ -434,6 +657,7 @@ void custumize_enemy(game_t *enemy)
 }
 void custumize_player(game_t *player)
 {
+    player->setup->complex->variable =  1;
     player->setup->data->vp_position_x = WINDOW_WIDTH / 2;
     player->setup->data->vp_position_y = WINDOW_HEIGHT / 2;
     player->setup->graph->color = 0x00FF7FFF; 
@@ -470,7 +694,7 @@ void customizer(game_t *aset, assets_t *assets)
 assets_t *init_assets(mlx_t *mlx) 
 {
     assets_t *assets = malloc(sizeof(assets_t));
-    
+   // fprintf(stderr, "adress of ass in init_assets: %p\n", assets);
     if(!assets)
     {
         fprintf(stderr, "Failed to allocate memory for assets\n");
@@ -479,11 +703,20 @@ assets_t *init_assets(mlx_t *mlx)
 
     assets->game = init_game();
     assets->env_back = init_game();
-    assets->player = init_game();
     assets->env_front = init_game();
     assets->colect = init_game();
     assets->enemy = init_game();
+    assets->player = init_game();
     
+    
+    
+    
+    assets->game->assets = assets;
+    assets->env_back->assets = assets;
+    assets->player->assets = assets;
+    assets->env_front->assets = assets;
+    assets->colect->assets = assets;
+    assets->enemy->assets = assets;
 
     assets->game->setup->mlx = mlx;
     assets->env_back->setup->mlx = mlx;
@@ -515,19 +748,25 @@ mlx_t *init_mlx_session(int32_t width, int32_t height, char *title)
 
 void render(assets_t *assets)
 {
-    update_viewport(assets->player->setup, 1);
-    update_viewport(assets->game->setup, 1);
-    update_viewport(assets->env_back->setup, 1);
-    update_viewport(assets->env_front->setup, 1);
-    update_viewport(assets->colect->setup, 1);
-    update_viewport(assets->enemy->setup, 1);
+    update_viewport(assets->player, 1);
+    update_viewport(assets->game, 1);
+    update_viewport(assets->env_back, 1);
+    update_viewport(assets->env_front, 1);
+    update_viewport(assets->colect, 1);
+    update_viewport(assets->enemy, 1);
     
 }
 
 void event_handler(mlx_key_data_t keydata, void *param)
 {
+    int test = 0;
     assets_t *assets = (assets_t *)param;
-    key_hook(keydata, assets->player);
+    if (test == 0)
+        key_hook(keydata, assets->player);
+    if (test == 1)
+        key_hooker(keydata, assets->env_front);
+
+    //time_hook(assets->colect);
     
 }
 void def_map(map_t *map)
@@ -672,6 +911,32 @@ map_t *init_map(char *path)
     fprintf(stderr, "map init map : %p\n", map);
     return (map);
 }
+void debug_env_front(assets_t *assets) {
+    if (!assets || !assets->env_front) {
+        fprintf(stderr, "env_front not initialized\n");
+        return;
+    }
+
+    game_t *env_front = assets->env_front;
+
+    if (!env_front->setup || !env_front->setup->complex || !env_front->setup->graph) {
+        fprintf(stderr, "env_front substructures not initialized\n");
+        return;
+    }
+
+    fprintf(stderr, "env_front Complex Data:\n");
+    fprintf(stderr, "wave_amplitude: %f, wave_freq: %f, scale_fact: %f\n  color: %d\n",
+            env_front->setup->complex->wave_amplitude,
+            env_front->setup->complex->wave_freq,
+            env_front->setup->complex->scale_fact,
+            env_front->setup->graph->color);
+
+    fprintf(stderr, "env_front Viewport Data:\n");
+    fprintf(stderr, "Position: (%f, %f), Size: %d\n",
+            env_front->setup->data->vp_position_x,
+            env_front->setup->data->vp_position_y,
+            env_front->setup->data->vp_size);
+}
 // Main function
 int main() 
 {
@@ -709,9 +974,16 @@ int main()
     // fprintf(stderr, "map->grid: %s\n", map->grid[9]);
     fprintf(stderr, "map : %p\n", map);
     
-  
+    debug_env_front(assets);
+    fprintf(stderr, "assets.env_front : %p\n", assets->env_front);
+    fprintf(stderr, "assets.env_back : %p\n", assets->env_back);
     render(assets);
+    fprintf(stderr, "assets.env_front : %p\n", assets->env_front);
+    fprintf(stderr, "assets.env_back : %p\n", assets->env_back);
+
+    mlx_loop_hook(mlx, time_hook, assets);
    
+
    mlx_key_hook(mlx, event_handler, assets);
 
     
