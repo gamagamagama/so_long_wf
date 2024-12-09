@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/09 04:06:15 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/09 05:24:22 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -376,31 +376,37 @@ void draw_complex_pattern(game_t *asset, mlx_image_t *img, graph_data_t *g)
     }
 }
 
-void positions_of_assets()
+void positions_of_assets(assets_t *asset)
 {
-      if (asset == asset->assets->env_back)
-    {
-        while (asset->setup->data->vp_position_x < (WINDOW_WIDTH - 100))
-        {
-            asset->setup->data->vp_position_x += 20;
-            mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
 
-        }
-        
-    }
+    
+   
+    
+          //  mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->assets->player->setup->data->vp_position_x, asset->assets->player->setup->data->vp_position_y);
+
+    // asset->cord->cord_x = 
+    // asset->setup->data->vp_position_x + asset->setup->data->vp_size / 2;
+    // asset->cord->cord_y = 
+    // asset->setup->data->vp_position_y + asset->setup->data->vp_size / 2;
 }
 
 // Update the viewport
 void update_viewport(game_t *asset, double thickness) {
     graph_data_t *g = asset->setup->graph;
-    
+    assets_t *ass = asset->assets;
+
     if (asset->setup->image) mlx_delete_image(asset->setup->mlx, asset->setup->image);
     asset->setup->image = mlx_new_image(asset->setup->mlx, asset->setup->data->vp_size, asset->setup->data->vp_size);
     if (!asset->setup->image) {
         fprintf(stderr, "Failed to create image\n");
         return;
     }
-    //positions_of_assets();
+    // if (asset == ass->player)
+    // {
+    //     positions_of_assets(ass);
+    // }
+    
+    
   
     
     draw_complex_pattern(asset, asset->setup->image, g);
@@ -1022,6 +1028,7 @@ void map_pathfinder(map_t *map)
     current = current->next;
     }
     cord_t *player = map->assets->player->cord;
+    
     while (player->next != NULL) {
     printf("Coordinate_player: (%ld, %ld)\n", player->cord_x, player->cord_y);
     player = player->next;   
