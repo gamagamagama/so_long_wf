@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/08 04:01:28 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/09 04:06:15 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,7 +193,7 @@ char	*get_next_line(int fd)
 }
 
 
-void init_complex_data(complex_data_t *complex) {
+void init_complex_var(complex_data_t *complex) {
     complex->wave_amplitude = 10;
     complex->wave_freq = 3;
     complex->spiral_fact = 1;
@@ -209,7 +209,7 @@ void init_complex_data(complex_data_t *complex) {
 }
 
 
-void init_vp_data(vp_t *vp) {
+void init_vp_var(vp_t *vp) {
     vp->vp_size = VIEWPORT_SIZE;
     vp->vp_position_x = (WINDOW_WIDTH - VIEWPORT_SIZE) / 2;
     vp->vp_position_y = (WINDOW_HEIGHT - VIEWPORT_SIZE) / 2;
@@ -217,14 +217,14 @@ void init_vp_data(vp_t *vp) {
     vp->vp_size_y = VIEWPORT_SIZE;
 }
 
-void init_node_data(node_t *node) {
+void init_node_var(node_t *node) {
     node->win_width = WINDOW_WIDTH;
     node->win_height = WINDOW_HEIGHT;
     node->color = 0x00000000;
     node->set = 0;
 }
 
-void init_graph(graph_data_t *graph) 
+void init_graph_var(graph_data_t *graph) 
 {
     graph->delta_x = 0;
     graph->delta_y = 0;
@@ -242,30 +242,33 @@ void init_graph(graph_data_t *graph)
 
 }
 
-game_t *init_game() {
-    game_t *game = malloc(sizeof(game_t));
-    if (!game) {
-        fprintf(stderr, "Failed to allocate memory for setup\n");
-        exit(EXIT_FAILURE);
-    }
-    
-    game->setup = malloc(sizeof(setup_t));
-    game->setup->complex = malloc(sizeof(complex_data_t));
-    game->setup->data = malloc(sizeof(vp_t));
-    game->setup->node = malloc(sizeof(node_t));
-    game->setup->graph = malloc(sizeof(graph_data_t));
+// game_t *init_game() {
+//     game_t *game = malloc(sizeof(game_t));
+//     if (!game) {
+//         fprintf(stderr, "Failed to allocate memory for setup\n");
+//         exit(EXIT_FAILURE);
+//     }
+//     game->cord = malloc(sizeof(cord_t));
+//     game->setup = malloc(sizeof(setup_t));
+//     game->setup->complex = malloc(sizeof(complex_data_t));
+//     game->setup->data = malloc(sizeof(vp_t));
+//     game->setup->node = malloc(sizeof(node_t));
+//     game->setup->graph = malloc(sizeof(graph_data_t));
 
-    if (!game->setup->complex || !game->setup->data || !game->setup->node || !game->setup->graph || !game->setup) {
-        fprintf(stderr, "Failed to allocate memory for sub-structures\n");
-        exit(EXIT_FAILURE);
-    }
-    init_complex_data(game->setup->complex);
-    init_vp_data(game->setup->data);
-    init_node_data(game->setup->node);
-    init_graph(game->setup->graph);
-    game->setup->image = NULL;
-    return (game);
-}
+//     if (!game->setup->complex || !game->setup->data || !game->setup->node || !game->setup->graph || !game->setup) {
+//         fprintf(stderr, "Failed to allocate memory for sub-structures\n");
+//         exit(EXIT_FAILURE);
+//     }
+    
+//     init_complex_data(game->setup->complex);
+//     init_vp_data(game->setup->data);
+//     init_node_data(game->setup->node);
+//     init_graph(game->setup->graph);
+//     game->setup->image = NULL;
+//     game->cord->cord_x = 0;
+//     game->cord->cord_y = 0;
+//     return (game);
+// }
 
 // Draw a filled square
 void draw_filled_square(mlx_image_t *img,graph_data_t *g)
@@ -373,6 +376,20 @@ void draw_complex_pattern(game_t *asset, mlx_image_t *img, graph_data_t *g)
     }
 }
 
+void positions_of_assets()
+{
+      if (asset == asset->assets->env_back)
+    {
+        while (asset->setup->data->vp_position_x < (WINDOW_WIDTH - 100))
+        {
+            asset->setup->data->vp_position_x += 20;
+            mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
+
+        }
+        
+    }
+}
+
 // Update the viewport
 void update_viewport(game_t *asset, double thickness) {
     graph_data_t *g = asset->setup->graph;
@@ -383,19 +400,11 @@ void update_viewport(game_t *asset, double thickness) {
         fprintf(stderr, "Failed to create image\n");
         return;
     }
-    if (asset == asset->assets->env_back)
-    {
-        while (asset->setup->data->vp_position_x < (WINDOW_WIDTH - 100))
-        {
-            asset->setup->data->vp_position_x += 20;
-            mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
-
-        }
-        
-    }
+    //positions_of_assets();
+  
     
     draw_complex_pattern(asset, asset->setup->image, g);
-   // mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
+    mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
 }
 void collectable_animation(game_t *who) 
 {
@@ -622,7 +631,7 @@ void custumize_env_back(game_t *env_back)
 {
     env_back->setup->complex->wave_amplitude = 8;
     env_back->setup->complex->wave_freq = 1.5;
-   // env_back->setup->data->vp_size = 800;
+    //env_back->setup->data->vp_size = 800;
  
    // env_back->setup->complex->scale_fact = 3;
     env_back->setup->data->vp_position_x = 0;
@@ -691,46 +700,46 @@ void customizer(game_t *aset, assets_t *assets)
     else
         return;
 }
-assets_t *init_assets(mlx_t *mlx) 
-{
-    assets_t *assets = malloc(sizeof(assets_t));
-   // fprintf(stderr, "adress of ass in init_assets: %p\n", assets);
-    if(!assets)
-    {
-        fprintf(stderr, "Failed to allocate memory for assets\n");
-        return (NULL);
-    }
+// assets_t *init_assets(mlx_t *mlx) 
+// {
+//     assets_t *assets = malloc(sizeof(assets_t));
+//    // fprintf(stderr, "adress of ass in init_assets: %p\n", assets);
+//     if(!assets)
+//     {
+//         fprintf(stderr, "Failed to allocate memory for assets\n");
+//         return (NULL);
+//     }
 
-    assets->game = init_game();
-    assets->env_back = init_game();
-    assets->env_front = init_game();
-    assets->colect = init_game();
-    assets->enemy = init_game();
-    assets->player = init_game();
+//     assets->game = init_game();
+//     assets->env_back = init_game();
+//     assets->env_front = init_game();
+//     assets->colect = init_game();
+//     assets->enemy = init_game();
+//     assets->player = init_game();
     
     
+   
     
-    
-    assets->game->assets = assets;
-    assets->env_back->assets = assets;
-    assets->player->assets = assets;
-    assets->env_front->assets = assets;
-    assets->colect->assets = assets;
-    assets->enemy->assets = assets;
+//     assets->game->assets = assets;
+//     assets->env_back->assets = assets;
+//     assets->player->assets = assets;
+//     assets->env_front->assets = assets;
+//     assets->colect->assets = assets;
+//     assets->enemy->assets = assets;
 
-    assets->game->setup->mlx = mlx;
-    assets->env_back->setup->mlx = mlx;
-    assets->player->setup->mlx = mlx;
-    assets->env_front->setup->mlx = mlx;
-    assets->colect->setup->mlx = mlx;
-    assets->enemy->setup->mlx = mlx;
+//     assets->game->setup->mlx = mlx;
+//     assets->env_back->setup->mlx = mlx;
+//     assets->player->setup->mlx = mlx;
+//     assets->env_front->setup->mlx = mlx;
+//     assets->colect->setup->mlx = mlx;
+//     assets->enemy->setup->mlx = mlx;
    
 
-    custumizer_pass(assets);
+//     custumizer_pass(assets);
     
     
-    return (assets);
-}
+//     return (assets);
+// }
 
 
 // MLX functions
@@ -764,7 +773,7 @@ void event_handler(mlx_key_data_t keydata, void *param)
     if (test == 0)
         key_hook(keydata, assets->player);
     if (test == 1)
-        key_hooker(keydata, assets->env_front);
+        key_hooker(keydata, assets->env_back);
 
     //time_hook(assets->colect);
     
@@ -778,6 +787,9 @@ void def_map(map_t *map)
     map->collectible_count = 0;
     map->exit_count = 0;
     map->walls = 1;
+    map->rect = 1;
+    map->cord_x = 0;
+    map->cord_y = 0;
     map->is_valid = false;
 }
 map_t *load_map(char *path, map_t *map)
@@ -839,6 +851,7 @@ void check_walls(map_t *map)
     fprintf(stderr, "check_walls\n");
    
     j = 0;
+
     while (j < map->cols)
     {
         if (map->grid[0][j] != '1' || map->grid[map->rows - 1][j] != '1')
@@ -853,6 +866,13 @@ void check_walls(map_t *map)
     i = 0;
     while (i < map->rows)
     {
+        if (ft_strlen(map->grid[i]) - 1 != map->cols)
+        {
+            map->rect = 0;
+            fprintf(stderr, "1_map len of map->grid[i]: %ld\n", ft_strlen(map->grid[i]));
+            fprintf(stderr, "1_map cols : %ld\n", map->cols);
+            fprintf(stderr, "1_map not valid at position: i: %ld j: %ld , (ASCII :%d\n",i, j, map->grid[i][j]);
+        }
         if (map->grid[i][0] != '1' || map->grid[i][map->cols - 1] != '1')
         {
             fprintf(stderr, "map->grid[i][0]: %c\n", map->grid[i][0]);
@@ -892,25 +912,175 @@ void map_checks(map_t *map)
     check_walls(map);
     fprintf(stderr, "map walls checked %d\n", map->is_valid);
     fprintf(stderr, "player_count: %d, collectible_count: %d, exit_count: %d\n", map->player_count, map->collectible_count, map->exit_count);
-    map->is_valid = (map->player_count == 1) && (map->collectible_count > 0) && (map->exit_count == 1) && (map->walls == 1);
+    map->is_valid = (map->player_count == 1) && (map->collectible_count > 0) && (map->exit_count == 1) && (map->walls == 1) && (map->rect == 1);
     fprintf(stderr, "is_valid: %d\n", map->is_valid);
 }
-map_t *init_map(char *path)
+// void append_cords(cord_t **first, size_t x, size_t y)
+// {
+//     cord_t *new_cord;
+//     cord_t *tmp;
+//     new_cord = init_cord(new_cord);
+//     if (new_cord == NULL)
+//         return;
+//     if (first == NULL)
+//     {
+//         *first = new_cord;
+//     }
+//     else
+//     {
+//         tmp = *first;
+//         while (tmp->next != NULL)
+//         {
+//             tmp = tmp->next;
+//         }
+//         tmp->next = new_cord;
+//     }
+// }
+void find_colect_cords(map_t *map)
 {
-    map_t *map;
 
-    map = malloc(sizeof(map_t));
-    if (!map)
+    size_t i = 0;
+    size_t j = 0;
+    cord_t *new_cord;
+    int count = map->collectible_count;
+    fprintf(stderr, "count: %d\n", count);
+    while (i < map->rows && count > 0)
     {
-        fprintf(stderr, "Failed to allocate memory for map\n");
-        return NULL;
+        fprintf(stderr, "map->grid[%ld][%ld]: %c\n", i, j, map->grid[i][j]);
+        j = 0;
+        while (j < map->cols && count > 0)
+        {
+            fprintf(stderr, "map->grid[%ld][%ld]: %c\n", i, j, map->grid[i][j]);
+            if (map->grid[i][j] == 'C')
+            {
+                new_cord = init_cord(map->assets->colect->cord);
+                if(new_cord == NULL)
+                    return;
+                new_cord->cord_x = i;
+                new_cord->cord_y = j;
+                map->assets->colect->cord = new_cord;
+                fprintf(stderr, "YES_colect\n");
+                count--;
+                fprintf(stderr, "count: %d\n", count);
+            }
+            else if (map->grid[i][j] == 'E')
+            {
+                new_cord = init_cord(map->assets->enemy->cord);
+                if(new_cord == NULL)
+                    return;
+                new_cord->cord_x = i;
+                new_cord->cord_y = j;
+                map->assets->enemy->cord = new_cord;
+                fprintf(stderr, "YES_exit\n");
+            }
+            else if (map->grid[i][j] == 'P')
+            {
+                new_cord = init_cord(map->assets->player->cord);
+                if(new_cord == NULL)
+                    return;
+                new_cord->cord_x = i;
+                new_cord->cord_y = j;
+                map->assets->player->cord = new_cord;
+                fprintf(stderr, "YES_player\n");
+            }
+            else if (map->grid[i][j] == '1')
+            {
+                new_cord = init_cord(map->assets->env_front->cord);
+                if(new_cord == NULL)
+                    return;
+                new_cord->cord_x = i;
+                new_cord->cord_y = j;
+                map->assets->env_front->cord = new_cord;
+                fprintf(stderr, "YES_env_front\n");
+            }
+            else if (map->grid[i][j] == '0')
+            {
+                new_cord = init_cord(map->assets->env_back->cord);
+                if(new_cord == NULL)
+                    return;
+                new_cord->cord_x = i;
+                new_cord->cord_y = j;
+                map->assets->env_back->cord = new_cord;
+                fprintf(stderr, "YES_env_back\n");
+            }
+            
+            j++;
+        }
+        i++;
     }
-
-    map = load_map(path, map);
-    map_checks(map);
-    fprintf(stderr, "map init map : %p\n", map);
-    return (map);
 }
+    
+
+
+void map_pathfinder(map_t *map) 
+{
+    fprintf(stderr, "2_cords adress: %p\n", map->assets->player->cord);
+    find_colect_cords(map);
+    cord_t *current = map->assets->colect->cord;
+    while (current->next != NULL) {
+    printf("Coordinate_colect: (%ld, %ld)\n", current->cord_x, current->cord_y);
+    current = current->next;
+    }
+    cord_t *player = map->assets->player->cord;
+    while (player->next != NULL) {
+    printf("Coordinate_player: (%ld, %ld)\n", player->cord_x, player->cord_y);
+    player = player->next;   
+    }
+    cord_t *exit = map->assets->enemy->cord;
+    while (exit->next != NULL) {
+    printf("Coordinate_exit: (%ld, %ld)\n", exit->cord_x, exit->cord_y);
+    exit = exit->next;
+    }
+    cord_t *env_back = map->assets->env_back->cord;
+    while (env_back->next != NULL) {
+    printf("Coordinate_env_back: (%ld, %ld)\n", env_back->cord_x, env_back->cord_y);
+    env_back = env_back->next;
+    }
+    cord_t *env_front = map->assets->env_front->cord;
+    while (env_front->next != NULL) {
+    printf("Coordinate_env_front: (%ld, %ld)\n", env_front->cord_x, env_front->cord_y);
+    env_front = env_front->next;
+}
+    //find exit cords
+    //find player cords
+    
+}
+
+// map_t *init_map(char *path)
+// {
+//     map_t *map;
+
+//     map = malloc(sizeof(map_t));
+//     if (!map)
+//     {
+//         fprintf(stderr, "Failed to allocate memory for map\n");
+//         return NULL;
+//     }
+
+//     map = load_map(path, map);
+//     map_checks(map);
+//     map_pathfinder(map);
+//     fprintf(stderr, "map init map : %p\n", map);
+//     return (map);
+// }
+
+// cord_t *init_cord(int x, int y)
+// {
+//     cord_t *cord;
+//    // assets_t *assets;
+
+//     cord = malloc(sizeof(cord_t));
+//     if (!cord)
+//     {
+//         fprintf(stderr, "Failed to allocate memory for cord\n");
+//         return NULL;
+//     }
+//     cord->cord_x = x;
+//     cord->cord_y = y;
+
+    
+//     return (cord);
+// }
 void debug_env_front(assets_t *assets) {
     if (!assets || !assets->env_front) {
         fprintf(stderr, "env_front not initialized\n");
@@ -941,28 +1111,43 @@ void debug_env_front(assets_t *assets) {
 int main() 
 {
     mlx_t *mlx;
-    assets_t *assets;
-    map_t *map;
-    char *path = "map.ber";
-    size_t i = 0;
-    size_t j = 0;
-
     mlx = init_mlx_session(WINDOW_WIDTH, WINDOW_HEIGHT, "Lost in Void");
-    assets = init_assets(mlx);
-    map = init_map(path);
+    init_structures(mlx);
 
-    i = 0;
-    while (i < map->rows) 
-    {
-        j = 0;
-        while (j < map->cols)
-        {
-            fprintf(stderr, "%c", map->grid[i][j]);
-            j++;
-        }
-        fprintf(stderr, "\n");
-        i++;
-    }
+
+    // mlx_t *mlx;
+    // assets_t *assets;
+    // map_t *map;
+    // cord_t *cord;
+    // char *path = "map.ber";
+    // size_t i = 0;
+    // size_t j = 0;
+
+    // mlx = init_mlx_session(WINDOW_WIDTH, WINDOW_HEIGHT, "Lost in Void");
+    // assets = init_assets(mlx);
+    // cord = init_cord(0, 0);
+    // fprintf(stderr,"cord address: %p\n", cord);
+    // map = init_map(path);
+    // assets->colect->cord = cord;
+    // assets->player->cord = cord;
+    // assets->game->cord = cord;
+    // assets->env_back->cord = cord;
+    // assets->env_front->cord = cord;
+    // assets->enemy->cord = cord;
+  
+    // i = 0;
+    // while (i < map->rows) 
+    // {
+    //     j = 0;
+    //     while (j < map->cols)
+    //     {
+    //         fprintf(stderr, "%c", map->grid[i][j]);
+    //         j++;
+    //     }
+    //     map->grid[i][j] = '\0';
+    //     fprintf(stderr, "\n");
+    //     i++;
+    // }
     // fprintf(stderr, "map->grid: %s\n", map->grid[1]);
     // fprintf(stderr, "map->grid: %s\n", map->grid[2]);
     // fprintf(stderr, "map->grid: %s\n", map->grid[3]);
@@ -972,38 +1157,19 @@ int main()
     // fprintf(stderr, "map->grid: %s\n", map->grid[7]);
     // fprintf(stderr, "map->grid: %s\n", map->grid[8]);
     // fprintf(stderr, "map->grid: %s\n", map->grid[9]);
-    fprintf(stderr, "map : %p\n", map);
+    // fprintf(stderr, "map : %p\n", map);
     
-    debug_env_front(assets);
-    fprintf(stderr, "assets.env_front : %p\n", assets->env_front);
-    fprintf(stderr, "assets.env_back : %p\n", assets->env_back);
-    render(assets);
-    fprintf(stderr, "assets.env_front : %p\n", assets->env_front);
-    fprintf(stderr, "assets.env_back : %p\n", assets->env_back);
+    // debug_env_front(assets);
+    // fprintf(stderr, "assets.env_front : %p\n", assets->env_front);
+    // fprintf(stderr, "assets.env_back : %p\n", assets->env_back);
+    // render(assets);
+    // fprintf(stderr, "assets.env_front : %p\n", assets->env_front);
+    // fprintf(stderr, "assets.env_back : %p\n", assets->env_back);
 
-    mlx_loop_hook(mlx, time_hook, assets);
-   
-
-   mlx_key_hook(mlx, event_handler, assets);
-
-    
-    mlx_loop(mlx);
+    mlx_terminate(mlx);
+    return EXIT_SUCCESS;
 
   
    
-    mlx_delete_image(mlx, assets->env_back->setup->image);
-    mlx_delete_image(mlx, assets->env_front->setup->image);
-    mlx_delete_image(mlx, assets->colect->setup->image);
-    mlx_delete_image(mlx, assets->enemy->setup->image);
-    mlx_delete_image(mlx, assets->player->setup->image);
-    free_game(assets->player);
-    free_game(assets->env_back);
-    free_game(assets->env_front);
-    free_game(assets->colect);
-    free_game(assets->enemy);
-   
-    free_game(assets->game);
-    free(assets);
-    mlx_terminate(mlx);
-    return EXIT_SUCCESS;
+
 }

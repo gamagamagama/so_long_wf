@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 15:29:58 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/07 17:52:06 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/09 03:44:20 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@
 
 
 typedef struct assets_s assets_t;
+typedef struct cord_s cord_t;
 
 typedef struct tst_node
 {
@@ -122,6 +123,7 @@ typedef struct game_s
 {
 	setup_t *setup;
 	assets_t *assets;
+	cord_t *cord;
 } game_t;
 
 typedef struct assets_s
@@ -141,19 +143,30 @@ typedef struct map_s
 	size_t rows;
 	size_t cols;
 	int player_count;
-	int coords; 
+	int cord_x;
+	int cord_y; 
 	int collectible_count;
 	int walls;
+	int rect;
     int exit_count;
     bool is_valid;
 
 } map_t;
 
+typedef struct cord_s
+{
+	size_t cord_x;
+	size_t cord_y;
+	struct cord_s *next;
+	
+} cord_t;
+
+void debug_env_front(assets_t *assets);
 void bresen_line(mlx_image_t *img, graph_data_t *graph_data, vp_t *viewport);
 //void key_hook(mlx_key_data_t keydata, void *param);
 void update_vp(vp_t *viewport);
 void update_data_cp(mlx_image_t *img, int centerX, int centerY, int thickness);
-void init_node(node_t *node);
+node_t * init_node(void);
 void init_vp(vp_t *vp);
 void init_all_data(vp_t *data, complex_data_t *complex, graph_data_t *graph, node_t *node);
 void init_graph(graph_data_t *graph);
@@ -166,7 +179,7 @@ void print_all(setup_t *setup);
 void updateViewport(game_t *asset , int thickness);
 void init_graph(graph_data_t *graph);
 void customizer(game_t *aset, assets_t *assets);
-
+cord_t *init_cord(cord_t *next);
 
 char	*get_next_line(int fd);
 char	*ft_reader(int fd, char *result);
@@ -177,6 +190,21 @@ char	*ft_strrchr(char *result, int c);
 char	*ft_strjoin(char *result, char *string_buffer);
 char	*ft_strdup(char *s);
 void	*ft_memcpy(void *dest, const void *src, size_t n);
+void time_hook( void *param);
+void event_handler(mlx_key_data_t keydata, void *param);
+void  init_structures(mlx_t *mlx);
+void render(assets_t *assets);
+void free_game(game_t *game);
+void init_complex_var(complex_data_t *complex);
+void init_vp_var(vp_t *vp);
+void init_node_var(node_t *node);
+void init_graph_var(graph_data_t *graph);
+void update_viewport(game_t *asset, double thickness);
+map_t *init_map(mlx_t *mlx, game_t *game ,char *path);
+void custumizer_pass(assets_t *assets);
+void def_map(map_t *map);
+map_t *load_map(char *path, map_t *map);
+void map_checks(map_t *map);
 
-
+void map_pathfinder(map_t *map);
 #endif
