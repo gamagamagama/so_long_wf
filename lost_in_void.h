@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lost_in_void.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 15:29:58 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/09 03:44:20 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/09 12:22:03 by matus            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,7 +200,7 @@ void init_vp_var(vp_t *vp);
 void init_node_var(node_t *node);
 void init_graph_var(graph_data_t *graph);
 void update_viewport(game_t *asset, double thickness);
-map_t *init_map(mlx_t *mlx, game_t *game ,char *path);
+static map_t *init_map(mlx_t *mlx, game_t *game ,char *path);
 void custumizer_pass(assets_t *assets);
 void def_map(map_t *map);
 map_t *load_map(char *path, map_t *map);

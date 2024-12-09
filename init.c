@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/08 19:22:39 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/09 03:43:30 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/09 12:21:12 by matus            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,7 +141,7 @@ assets_t *init_assets(mlx_t *mlx, cord_t *cord, map_t *map)
     return (assets);
 }
 
-map_t *init_map(mlx_t *mlx, game_t *game ,char *path)
+static map_t *init_map(mlx_t *mlx, game_t *game ,char *path)
 {
    static map_t *map;
     assets_t *assets;
@@ -204,12 +204,17 @@ void init_structures(mlx_t *mlx)
     fprintf(stderr, "setup: %p\n", setup);
     cord = init_cord(cord);
     fprintf(stderr, "cord: %p\n", cord);
+   
     game = init_game(mlx);
     fprintf(stderr, "game: %p\n", game);
+
     map = init_map(mlx, game, "map.ber");
     fprintf(stderr, "map: %p\n", map);
+
     assets = init_assets(mlx, cord, map);
     fprintf(stderr, "assets: %p\n", assets);
+
+
    
     render(assets);
 

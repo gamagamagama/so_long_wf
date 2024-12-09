@@ -6,7 +6,7 @@
 /*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/09 10:36:39 by matus            ###   ########.fr       */
+/*   Updated: 2024/12/09 14:56:50 by matus            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	*ft_memcpy(void *dest, const void *src, size_t n)
 	i = 0;
 	while (i < n)
 	{
-		((unsigned char *)dest)[i] = ((unsigned char *)src)[i];
+		((unsigned char *)dest)[i] = ((unsigned char *)src)[i]; 
 		i++;
 	}
 	return (dest);
@@ -353,18 +353,20 @@ void draw_complex_pattern(game_t *asset, mlx_image_t *img, graph_data_t *g)
 { 
     assets_t *ass = asset->assets;
     complex_data_t *c = asset->setup->complex;
-    int center; 
-    center = asset->setup->data->vp_size / 2;
-    g->start_x = center;
-    g->start_y = center;
+    int center_x;
+    int center_y; 
+    center_x = asset->cord->cord_x +  asset->setup->data->vp_size / 2;
+    center_y = asset->cord->cord_y + asset->setup->data->vp_size / 2;
+    g->start_x = center_x;
+    g->start_y = center_y;
     recompute_c_variable(c, ass, asset);
    // fprintf(stderr, "adress of ass: %p\n", ass);
     c->time = 0;
     while (c->time < (2 * M_PI * c->depth)) 
     {
         
-        g->end_x = center + (int)(c->scale_fact * ((c->A + c->time * c->spiral_fact) * sin(c->a * c->time + c->delta) + c->wave_amplitude * sin(c->wave_freq * c->time)* c->variable)); //* tan(c->wave_freq) * M_PI));
-        g->end_y = center + (int)(c->scale_fact * ((c->B + c->time * c->spiral_fact) * cos(c->b * c->time) + c->wave_amplitude * cos(c->wave_freq * c->time)* c->variable));  //* tan(c->wave_freq) * M_PI));
+        g->end_x = center_x + (int)(c->scale_fact * ((c->A + c->time * c->spiral_fact) * sin(c->a * c->time + c->delta) + c->wave_amplitude * sin(c->wave_freq * c->time)* c->variable)); //* tan(c->wave_freq) * M_PI));
+        g->end_y = center_y + (int)(c->scale_fact * ((c->B + c->time * c->spiral_fact) * cos(c->b * c->time) + c->wave_amplitude * cos(c->wave_freq * c->time)* c->variable));  //* tan(c->wave_freq) * M_PI));
         if (g->end_x >= 0 && g->end_x < img->width && g->end_y >= 0 && g->end_y < img->height) {
             draw_thick_line(img, g);
         }
@@ -376,24 +378,17 @@ void draw_complex_pattern(game_t *asset, mlx_image_t *img, graph_data_t *g)
     }
 }
 
-void positions_of_assets(assets_t *asset)
+void positions_of_assets(game_t *asset)
 {
-
-    
-   
-    
-          //  mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->assets->player->setup->data->vp_position_x, asset->assets->player->setup->data->vp_position_y);
-
-    // asset->cord->cord_x = 
-    // asset->setup->data->vp_position_x + asset->setup->data->vp_size / 2;
-    // asset->cord->cord_y = 
-    // asset->setup->data->vp_position_y + asset->setup->data->vp_size / 2;
+    asset->setup->data->vp_position_x = asset->cord->cord_x - (asset->setup->data->vp_size / 2);
+    asset->setup->data->vp_position_y = asset->cord->cord_y - (asset->setup->data->vp_size / 2);
 }
+
 
 // Update the viewport
 void update_viewport(game_t *asset, double thickness) {
     graph_data_t *g = asset->setup->graph;
-    assets_t *ass = asset->assets;
+    //assets_t *ass = asset->assets;
 
     if (asset->setup->image) mlx_delete_image(asset->setup->mlx, asset->setup->image);
     asset->setup->image = mlx_new_image(asset->setup->mlx, asset->setup->data->vp_size, asset->setup->data->vp_size);
@@ -401,15 +396,19 @@ void update_viewport(game_t *asset, double thickness) {
         fprintf(stderr, "Failed to create image\n");
         return;
     }
-    // if (asset == ass->player)
-    // {
-    //     positions_of_assets(ass);
-    // }
+//     if (asset == asset->assets->player)
+//    {
+       
+//             positions_of_assets(asset);
+//             draw_complex_pattern(asset, asset->setup->image, g);
+//            mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->cord->cord_x, asset->cord->cord_y);
+
+//    }
     
     
   
-    
     draw_complex_pattern(asset, asset->setup->image, g);
+    
     mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
 }
 void collectable_animation(game_t *who) 
@@ -637,7 +636,7 @@ void custumize_env_back(game_t *env_back)
 {
     env_back->setup->complex->wave_amplitude = 8;
     env_back->setup->complex->wave_freq = 1.5;
-    //env_back->setup->data->vp_size = 800;
+    env_back->setup->data->vp_size = 800;
  
    // env_back->setup->complex->scale_fact = 3;
     env_back->setup->data->vp_position_x = 0;
@@ -1020,6 +1019,12 @@ void find_colect_cords(map_t *map)
 
 void map_pathfinder(map_t *map) 
 {
+    map->assets->colect->cord = NULL;
+    map->assets->player->cord = NULL;
+    map->assets->enemy->cord = NULL;
+    map->assets->env_back->cord = NULL;
+    map->assets->env_front->cord = NULL;
+    
     fprintf(stderr, "2_cords adress: %p\n", map->assets->player->cord);
     find_colect_cords(map);
     cord_t *current = map->assets->colect->cord;
