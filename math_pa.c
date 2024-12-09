@@ -6,7 +6,7 @@
 /*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/09 14:56:50 by matus            ###   ########.fr       */
+/*   Updated: 2024/12/09 15:29:56 by matus            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1053,7 +1053,7 @@ void map_pathfinder(map_t *map)
     printf("Coordinate_env_front: (%ld, %ld)\n", env_front->cord_x, env_front->cord_y);
     env_front = env_front->next;
 }
-    //find exit cords
+    // find exit cords
     //find player cords
     
 }

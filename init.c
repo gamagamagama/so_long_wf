@@ -6,7 +6,7 @@
 /*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/08 19:22:39 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/09 12:21:12 by matus            ###   ########.fr       */
+/*   Updated: 2024/12/09 15:29:45 by matus            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,7 +137,7 @@ assets_t *init_assets(mlx_t *mlx, cord_t *cord, map_t *map)
     
     
      custumizer_pass(assets);
-    // Initialize other dependencies here
+    //  Initialize other dependencies here
     return (assets);
 }
 
