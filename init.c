@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
+/*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/08 19:22:39 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/09 15:29:45 by matus            ###   ########.fr       */
+/*   Updated: 2024/12/09 21:48:07 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,20 +64,24 @@ setup_t *init_setup(mlx_t *mlx, mlx_image_t *image)
     setup->image = image;
     return (setup);
 }
-cord_t *init_cord(cord_t *next)
+cord_t *init_cord(cord_t **cord)
 {
-    cord_t *cord;
+    cord_t *new_cord;
+    if (!(cord))
+        return NULL;
 
-    cord = malloc(sizeof(cord_t));
-    if (!cord) {
+    new_cord = malloc(sizeof(cord_t));
+    if (!new_cord) {
         perror("Failed to allocate memory for cord");
         return NULL;
     }
-    
-    cord->cord_x = 0;
-    cord->cord_y = 0;
-    cord->next = next;
-    return (cord);
+
+    new_cord->next = *cord;
+    *cord = new_cord;
+    new_cord->cord_x = 0;
+    new_cord->cord_y = 0;
+
+    return new_cord;
 }
 game_t *init_game(mlx_t *mlx)
 {
@@ -87,7 +91,7 @@ game_t *init_game(mlx_t *mlx)
 
     // Initialize setup, cord, and other dependencies here
     setup = init_setup(mlx, init_image(mlx));
-    cord = init_cord(cord);
+    cord = init_cord(&cord);
     game = malloc(sizeof(game_t));
     game->setup = setup;
     game->cord = cord;
@@ -102,15 +106,15 @@ assets_t *init_assets(mlx_t *mlx, cord_t *cord, map_t *map)
     game = init_game(mlx);
     assets = malloc(sizeof(assets_t));
     assets->game = game;
-    assets->game->cord = init_cord(cord);
+    assets->game->cord = init_cord(&cord);
     assets->enemy = init_game(mlx);
-    assets->enemy->cord = init_cord(cord);
+    assets->enemy->cord = init_cord(&cord);
     assets->player = init_game(mlx);
-    assets->player->cord = init_cord(cord);
+    assets->player->cord = init_cord(&cord);
     assets->env_back = init_game(mlx);
-    assets->env_back->cord = init_cord(cord);
+    assets->env_back->cord = init_cord(&cord);
     assets->env_front = init_game(mlx);
-    assets->env_front->cord = init_cord(cord);
+    assets->env_front->cord = init_cord(&cord);
     assets->colect = init_game(mlx);
     assets->colect->cord = NULL;
 
@@ -141,18 +145,22 @@ assets_t *init_assets(mlx_t *mlx, cord_t *cord, map_t *map)
     return (assets);
 }
 
-static map_t *init_map(mlx_t *mlx, game_t *game ,char *path)
+map_t *init_map(mlx_t *mlx, game_t *game ,char *path)
 {
-   static map_t *map;
+   map_t *map;
     assets_t *assets;
 
     assets = init_assets(mlx, game->cord, map);
     map = malloc(sizeof(map_t));
+        if (map == NULL)
+        {
+            perror("Failed to allocate memory for map");
+            return NULL;
+        }
+        
     map->assets = assets;
-    def_map(map);
-    map = load_map(path, map);
-    map_checks(map);
-    map_pathfinder(map);
+   
+  
     fprintf(stderr, "map init map : %p\n", map);
     map->assets->game->assets = map->assets;
     map->assets->env_back->assets = map->assets;
@@ -170,7 +178,7 @@ static map_t *init_map(mlx_t *mlx, game_t *game ,char *path)
 
    
     
-        map->assets->colect->cord = NULL;
+
     
     
     return (map);
@@ -202,7 +210,7 @@ void init_structures(mlx_t *mlx)
     fprintf(stderr, "node: %p\n", node);
     setup = init_setup(mlx, image);
     fprintf(stderr, "setup: %p\n", setup);
-    cord = init_cord(cord);
+    cord = init_cord(&cord);
     fprintf(stderr, "cord: %p\n", cord);
    
     game = init_game(mlx);
@@ -214,9 +222,14 @@ void init_structures(mlx_t *mlx)
     assets = init_assets(mlx, cord, map);
     fprintf(stderr, "assets: %p\n", assets);
 
+    def_map(map);
+    map = load_map("map.ber", map);
+    map_checks(map);
+    map_pathfinder(map);
+
 
    
-    render(assets);
+    render(assets, map);
 
     mlx_loop_hook(mlx, time_hook, assets);
    

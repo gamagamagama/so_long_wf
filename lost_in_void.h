@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lost_in_void.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
+/*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 15:29:58 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/09 12:22:03 by matus            ###   ########.fr       */
+/*   Updated: 2024/12/09 19:59:54 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,7 +158,6 @@ typedef struct cord_s
 	size_t cord_x;
 	size_t cord_y;
 	struct cord_s *next;
-	
 } cord_t;
 
 void debug_env_front(assets_t *assets);
@@ -179,7 +178,7 @@ void print_all(setup_t *setup);
 void updateViewport(game_t *asset , int thickness);
 void init_graph(graph_data_t *graph);
 void customizer(game_t *aset, assets_t *assets);
-cord_t *init_cord(cord_t *next);
+cord_t *init_cord(cord_t **cord);
 
 char	*get_next_line(int fd);
 char	*ft_reader(int fd, char *result);
@@ -193,7 +192,7 @@ void	*ft_memcpy(void *dest, const void *src, size_t n);
 void time_hook( void *param);
 void event_handler(mlx_key_data_t keydata, void *param);
 void  init_structures(mlx_t *mlx);
-void render(assets_t *assets);
+void render(assets_t *assets, map_t *map);
 void free_game(game_t *game);
 void init_complex_var(complex_data_t *complex);
 void init_vp_var(vp_t *vp);
@@ -205,6 +204,6 @@ void custumizer_pass(assets_t *assets);
 void def_map(map_t *map);
 map_t *load_map(char *path, map_t *map);
 void map_checks(map_t *map);
-
+void find_colect_cords(map_t *map);
 void map_pathfinder(map_t *map);
 #endif

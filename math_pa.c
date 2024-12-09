@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   math_pa.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
+/*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/09 15:29:56 by matus            ###   ########.fr       */
+/*   Updated: 2024/12/09 22:40:42 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -760,7 +760,7 @@ mlx_t *init_mlx_session(int32_t width, int32_t height, char *title)
     return (mlx);
 }
 
-void render(assets_t *assets)
+void render(assets_t *assets, map_t *map)
 {
     update_viewport(assets->player, 1);
     update_viewport(assets->game, 1);
@@ -806,20 +806,21 @@ map_t *load_map(char *path, map_t *map)
     def_map(map);
     fd = open(path, O_RDONLY);
     fprintf(stderr, "fd: %d\n", fd);
-    map->grid = malloc(sizeof(char *) * (map->cols + 1));
-    if (map->grid == NULL)
-    {
-        fprintf(stderr, "Failed to allocate memory for map grid\n");
-        return NULL;
-    }
+   // map->grid = malloc(sizeof(char *) * (map->rows + 1));
+    // if (map->grid == NULL)
+    // {
+    //     fprintf(stderr, "Failed to allocate memory for map grid\n");
+    //     return NULL;
+    // }
     while ((line = get_next_line(fd)) != NULL)
     {
         if (line[0])
         {
             if (map->cols == 0)
             {
-                map->cols = ft_strlen(line) - 1;
-                fprintf(stderr, "cols: %ld\n", map->cols);
+                map->cols = ft_strlen(line) + 1;
+                fprintf(stderr, "1cols: %ld\n", map->cols);
+                fprintf(stderr, "1rows: %ld\n", map->rows);
                 free(map->grid);
                 map->grid = malloc(sizeof(char *) * (map->cols + 1));
                 if (map->grid == NULL)
@@ -833,9 +834,12 @@ map_t *load_map(char *path, map_t *map)
             fprintf(stderr, "x: %d\n", x);
             x++;
             map->rows++;
+            map->cols = ft_strlen(line) - 1;
             fprintf(stderr, "line: %s\n", line);
             fprintf(stderr, "map->grid: %s\n", map->grid[x - 1]);
-            fprintf(stderr, "rows: %ld\n", map->rows);
+            fprintf(stderr, "2rows: %ld\n", map->rows);
+            fprintf(stderr, "2cols: %ld\n", map->cols);
+
         }
         else
         {
@@ -850,8 +854,8 @@ map_t *load_map(char *path, map_t *map)
 }
 void check_walls(map_t *map)
 {
-    size_t i = 0;
-    size_t j = 0;
+    int i ;
+    int j ;
     
     fprintf(stderr, "check_walls\n");
    
@@ -863,7 +867,7 @@ void check_walls(map_t *map)
         {
             fprintf(stderr, "map->grid[0][j]: %c\n", map->grid[0][j]);
             map->walls = 0;
-            fprintf(stderr, "map not valid at position: i: %ld j: %ld , (ASCII :%d\n",i, j, map->grid[i][j]);
+            fprintf(stderr, "map not valid at position: i: %d j: %d , (ASCII :%d\n",i, j, map->grid[i][j]);
         }
         
         j++;
@@ -871,18 +875,18 @@ void check_walls(map_t *map)
     i = 0;
     while (i < map->rows)
     {
-        if (ft_strlen(map->grid[i]) - 1 != map->cols)
+        if (ft_strlen(map->grid[i] - 1) != map->cols)
         {
             map->rect = 0;
             fprintf(stderr, "1_map len of map->grid[i]: %ld\n", ft_strlen(map->grid[i]));
             fprintf(stderr, "1_map cols : %ld\n", map->cols);
-            fprintf(stderr, "1_map not valid at position: i: %ld j: %ld , (ASCII :%d\n",i, j, map->grid[i][j]);
+            fprintf(stderr, "1_map not valid at position: i: %d j: %d , (ASCII :%d\n",i, j, map->grid[i][j]);
         }
         if (map->grid[i][0] != '1' || map->grid[i][map->cols - 1] != '1')
         {
             fprintf(stderr, "map->grid[i][0]: %c\n", map->grid[i][0]);
             map->walls = 0;
-            fprintf(stderr, "map not valid at position: i: %ld j: %ld , (ASCII :%d\n",i, j, map->grid[i][j]);
+            fprintf(stderr, "map not valid at position: i: %d j: %d , (ASCII :%d\n",i, j, map->grid[i][j]);
         }
         i++;
     }
@@ -958,19 +962,19 @@ void find_colect_cords(map_t *map)
             fprintf(stderr, "map->grid[%ld][%ld]: %c\n", i, j, map->grid[i][j]);
             if (map->grid[i][j] == 'C')
             {
-                new_cord = init_cord(map->assets->colect->cord);
+                new_cord = init_cord(&map->assets->colect->cord);
                 if(new_cord == NULL)
                     return;
                 new_cord->cord_x = i;
                 new_cord->cord_y = j;
-                map->assets->colect->cord = new_cord;
+                *&map->assets->colect->cord = new_cord;
                 fprintf(stderr, "YES_colect\n");
                 count--;
                 fprintf(stderr, "count: %d\n", count);
             }
             else if (map->grid[i][j] == 'E')
             {
-                new_cord = init_cord(map->assets->enemy->cord);
+                new_cord = init_cord(&map->assets->enemy->cord);
                 if(new_cord == NULL)
                     return;
                 new_cord->cord_x = i;
@@ -980,7 +984,7 @@ void find_colect_cords(map_t *map)
             }
             else if (map->grid[i][j] == 'P')
             {
-                new_cord = init_cord(map->assets->player->cord);
+                new_cord = init_cord(&map->assets->player->cord);
                 if(new_cord == NULL)
                     return;
                 new_cord->cord_x = i;
@@ -990,7 +994,7 @@ void find_colect_cords(map_t *map)
             }
             else if (map->grid[i][j] == '1')
             {
-                new_cord = init_cord(map->assets->env_front->cord);
+                new_cord = init_cord(&map->assets->env_front->cord);
                 if(new_cord == NULL)
                     return;
                 new_cord->cord_x = i;
@@ -1000,7 +1004,7 @@ void find_colect_cords(map_t *map)
             }
             else if (map->grid[i][j] == '0')
             {
-                new_cord = init_cord(map->assets->env_back->cord);
+                new_cord = init_cord(&map->assets->env_back->cord);
                 if(new_cord == NULL)
                     return;
                 new_cord->cord_x = i;
