@@ -6,7 +6,7 @@
 /*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 15:29:58 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/11 10:22:43 by matus            ###   ########.fr       */
+/*   Updated: 2024/12/11 15:58:05 by matus            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,4 +206,5 @@ map_t *load_map(char *path, map_t *map);
 void map_checks(map_t *map);
 void find_colect_cords(map_t *map);
 void map_pathfinder(map_t *map);
+void start_cords(assets_t *assets, cord_t *cords);
 #endif

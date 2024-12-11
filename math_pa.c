@@ -6,7 +6,7 @@
 /*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/11 10:32:22 by matus            ###   ########.fr       */
+/*   Updated: 2024/12/11 16:04:00 by matus            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -402,6 +402,7 @@ return pos_x;
 }
 double positions_of_assets_Y(game_t *asset)
 {
+    
     vp_t *vp = asset->setup->data;
     double pos_y = vp->vp_position_y;
    
@@ -421,7 +422,32 @@ double positions_of_assets_Y(game_t *asset)
     //  vp->vp_position_y = asset->setup->data->vp_position_y;
      return pos_y;
 }
+void static_viewport(game_t *asset, double thickness)
+{
+    graph_data_t *g = asset->setup->graph;
+    mlx_image_t *img = asset->setup->image;
+    cord_t *cords = asset->cord;
+    int x = 0;
+    thickness = asset->setup->graph->thickness;
+    asset->setup->image = mlx_new_image(asset->setup->mlx, asset->setup->data->vp_size, asset->setup->data->vp_size);
+    
+    
+    if (cords->next != NULL)
+    {
+        start_cords(asset->assets, cords);
+        mlx_image_to_window(asset->setup->mlx, asset->setup->image, cords->cord_x, cords->cord_y);
 
+    }
+    cords = cords->next;
+
+    draw_complex_pattern(asset, asset->setup->image, g);
+    mlx_image_to_window(asset->setup->mlx, asset->setup->image, cords->cord_x, cords->cord_y);
+
+   // mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
+
+
+
+}
 // Update the viewport
 void update_viewport(game_t *asset, double thickness) {
     graph_data_t *g = asset->setup->graph;
@@ -444,21 +470,21 @@ void update_viewport(game_t *asset, double thickness) {
             asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
 
     
-    if ( asset->assets->player) {
-        fprintf(stderr, "1Player position: (%f, %f)\n",
-                asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
+    // if ( asset->assets->player) {
+    //     fprintf(stderr, "1Player position: (%f, %f)\n",
+    //             asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
       
-     pos_x =  positions_of_assets_X(asset);
-        fprintf(stderr, "2Player position: (%f, %f)\n",
-            pos_x, pos_y);
+    //  pos_x =  positions_of_assets_X(asset);
+    //     fprintf(stderr, "2Player position: (%f, %f)\n",
+    //         pos_x, pos_y);
       
-    pos_y =  positions_of_assets_Y(asset);
-        fprintf(stderr, "3Player position: (%f, %f)\n",
-                pos_x, pos_y);
-        draw_complex_pattern(asset, asset->setup->image, g);
-        mlx_image_to_window(asset->setup->mlx, asset->setup->image,
-                            pos_x, pos_y); 
-    }
+    // pos_y =  positions_of_assets_Y(asset);
+    //     fprintf(stderr, "3Player position: (%f, %f)\n",
+    //             pos_x, pos_y);
+    //     draw_complex_pattern(asset, asset->setup->image, g);
+    //     mlx_image_to_window(asset->setup->mlx, asset->setup->image,
+    //                         pos_x, pos_y); 
+    // }
     // draw_complex_pattern(asset, asset->setup->image, g);
     // mlx_image_to_window(asset->setup->mlx, asset->setup->image,
     //                     vp->vp_position_x, vp->vp_position_y);
@@ -468,7 +494,7 @@ void update_viewport(game_t *asset, double thickness) {
 //    vp->vp_position_x = asset->setup->data->vp_position_x;
 // vp->vp_position_y = asset->setup->data->vp_position_y;
    
-}
+//
 // void update_viewport(game_t *asset, double thickness) {
 //     graph_data_t *g = asset->setup->graph;
 //     //assets_t *ass = asset->assets;
@@ -508,11 +534,12 @@ void update_viewport(game_t *asset, double thickness) {
     
     
   
-//     // draw_complex_pattern(asset, asset->setup->image, g);
+    draw_complex_pattern(asset, asset->setup->image, g);
     
-//     // mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
+    mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
         
 // }
+}
 void collectable_animation(game_t *who) 
 {
     static double counter = 0;
@@ -868,10 +895,34 @@ mlx_t *init_mlx_session(int32_t width, int32_t height, char *title)
     }
     return (mlx);
 }
+void start_cords(assets_t *assets, cord_t *cords)
+{
+    vp_t *vp = assets->colect->setup->data;
+   // cord_t *cords = assets->player->cord;
+    if (assets->colect)
+    {
+    
+        vp->vp_position_x = cords->cord_x * 10;
+        vp->vp_position_y = cords->cord_y * 10;
+    }
+    fprintf(stderr, "vp position x: %f\n vp position y: %f\n", vp->vp_position_x, vp->vp_position_y);
+   // assets->player->setup->data->vp_position_x = vp->vp_position_x;
+  //  assets->player->setup->data->vp_position_y = vp->vp_position_y;
+   // static_viewport(assets->colect, 1);
+}
 
 void render(assets_t *assets)
 {
-    update_viewport(assets->player, 1);
+    cord_t *cords;
+    cords = assets->colect->cord;
+    fprintf(stderr, "cord: ");
+   
+    
+        static_viewport(assets->colect, 1);
+    
+   // cords = cords->next;
+    
+   // update_viewport(assets->player, 1);
     // update_viewport(assets->game, 1);
     // update_viewport(assets->env_back, 1);
     // update_viewport(assets->env_front, 1);
