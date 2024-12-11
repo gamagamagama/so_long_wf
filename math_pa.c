@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/11 03:35:19 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/11 05:20:44 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -378,48 +378,89 @@ void draw_complex_pattern(game_t *asset, mlx_image_t *img, graph_data_t *g)
     }
 }
 
-void positions_of_assets(game_t *asset)
+
+double positions_of_assets_X(game_t *asset)
 {
+    vp_t *vp = asset->setup->data;
+    float pos_x = vp->vp_position_x;
+
     fprintf(stderr, "adress of asset in positions_of_assets: %p\n", asset);
     fprintf(stderr, "asset->vp_position_x: %f\n", asset->setup->data->vp_position_x);
     fprintf(stderr, "asset->vp_position_y: %f\n", asset->setup->data->vp_position_y);
     fprintf(stderr, "asset->cord->cord_x: %ld\n", asset->cord->cord_x);
     fprintf(stderr, "asset->cord->cord_y: %ld\n", asset->cord->cord_y);
-    asset->setup->data->vp_position_x = (float )asset->cord->cord_x * asset->setup->data->vp_size /2;
-    asset->setup->data->vp_position_y = (float) asset->cord->cord_y * asset->setup->data->vp_size /2;
+    pos_x= asset->cord->cord_x * vp->vp_size_x /2;
 
-    
+    // = asset->cord->cord_y * vp->vp_size /2;
+ //   vp->vp_position_x = pos_x;
+   // vp->vp_position_y = pos_y;
+
+ asset->setup->data->vp_position_x = pos_x;
+ vp->vp_position_x = asset->setup->data->vp_position_x;
+return pos_x;
+
 }
+double positions_of_assets_Y(game_t *asset)
+{
+    vp_t *vp = asset->setup->data;
+    float pos_y = vp->vp_position_y;
+   
+    fprintf(stderr, "adress of asset in positions_of_assets: %p\n", asset);
+    fprintf(stderr, "asset->vp_position_x: %f\n", asset->setup->data->vp_position_x);
+    fprintf(stderr, "asset->vp_position_y: %f\n", asset->setup->data->vp_position_y);
+    fprintf(stderr, "asset->cord->cord_x: %ld\n", asset->cord->cord_x);
+    fprintf(stderr, "asset->cord->cord_y: %ld\n", asset->cord->cord_y);
+    pos_y= asset->cord->cord_y; // * vp->vp_size /2;
+   
+    // = asset->cord->cord_y * vp->vp_size /2;
+ //   vp->vp_position_x = pos_x;
+   // vp->vp_position_y = pos_y;
 
+ //asset->setup->data->vp_position_x = pos_x;
+     asset->setup->data->vp_position_y = pos_y;
+     vp->vp_position_y = asset->setup->data->vp_position_y;
+     return pos_y;
+}
 
 // Update the viewport
 void update_viewport(game_t *asset, double thickness) {
     graph_data_t *g = asset->setup->graph;
 
-    if (asset->setup->image) {
-        mlx_delete_image(asset->setup->mlx, asset->setup->image);
-    }
+    vp_t *vp = asset->setup->data;
+    mlx_delete_image(asset->setup->mlx, asset->setup->image);
 
-    asset->setup->image = mlx_new_image(asset->setup->mlx, asset->setup->data->vp_size, asset->setup->data->vp_size);
+
+    asset->setup->image = mlx_new_image(asset->setup->mlx, asset->setup->data->vp_size_x, asset->setup->data->vp_size_y);
     if (!asset->setup->image) {
         fprintf(stderr, "Failed to create image\n");
         return;
     }
 
-    // Ensure coordinates are valid
+  
     fprintf(stderr, "Viewport position: (%f, %f)\n",
             asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
 
-    // Draw assets
-    if (asset == asset->assets->player) {
-        positions_of_assets(asset);
+    
+    if ( asset->assets->player) {
+        fprintf(stderr, "1Player position: (%f, %f)\n",
+                asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
+      vp->vp_position_x =  positions_of_assets_X(asset);
+        fprintf(stderr, "2Player position: (%f, %f)\n",
+                asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
+      vp->vp_position_y =  positions_of_assets_Y(asset);
+        fprintf(stderr, "3Player position: (%f, %f)\n",
+                asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
+         
     }
-
     draw_complex_pattern(asset, asset->setup->image, g);
-
-    // Place image at the correct coordinates
     mlx_image_to_window(asset->setup->mlx, asset->setup->image,
-                        asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
+                        vp->vp_position_x, vp->vp_position_y);
+       
+//mlx_image_to_window(asset->setup->mlx, asset->setup->image,
+                     //   vp->vp_position_x, vp->vp_position_y);
+   vp->vp_position_x = asset->setup->data->vp_position_x;
+vp->vp_position_y = asset->setup->data->vp_position_y;
+   
 }
 // void update_viewport(game_t *asset, double thickness) {
 //     graph_data_t *g = asset->setup->graph;
@@ -647,26 +688,31 @@ void key_hook(mlx_key_data_t keydata, void *param) {
     game_t *who = (game_t *)param;
     static int thickness = 1;
     complex_data_t *c = who->setup->complex;
+    vp_t *vp = who->setup->data;
     fprintf(stderr, "who: %p\n", who);
 
     if (keydata.key == MLX_KEY_S) {
         c->wave_amplitude += 2;
-     who->setup->data->vp_position_y += 10;
+     vp->vp_position_y += 10;
     }
     if (keydata.key == MLX_KEY_W) {
         c->wave_amplitude -= 2;
-        who->setup->data->vp_position_y -= 10;
+        vp->vp_position_y -= 10;
     }
     if (keydata.key == MLX_KEY_D) {
         c->wave_freq += 0.2;
-        who->setup->data->vp_position_x += 10;
+        vp->vp_position_x += 10;
     }
     if (keydata.key == MLX_KEY_A) {
         c->wave_freq -= 0.2;
-        who->setup->data->vp_position_x -= 10;
+        vp->vp_position_x -= 10;
     }
   //  fprintf(stderr, "wave_amplitude: %f\n wave_freq: %f\n vp_position_x: %f\n vp_position_y: %f\n", c->wave_amplitude, c->wave_freq, who->setup->data->vp_position_x, who->setup->data->vp_position_y);
     fprintf(stderr,"who: %p\n", who);
+    vp->vp_position_x = who->setup->data->vp_position_x;
+    vp->vp_position_y = who->setup->data->vp_position_y;
+    who->setup->data->vp_position_x = vp->vp_position_x;
+    who->setup->data->vp_position_y = vp->vp_position_y;
     update_viewport(who, thickness);
 }
 

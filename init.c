@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/08 19:22:39 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/11 03:45:27 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/11 04:01:10 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -240,7 +240,7 @@ void init_structures(mlx_t *mlx)
     // mlx_loop_hook(mlx, time_hook, assets);
    
 
-    mlx_key_hook(mlx, event_handler, map);
+    mlx_key_hook(mlx, event_handler, assets);
 
     
     mlx_loop(mlx);
