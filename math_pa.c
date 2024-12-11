@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/09 22:40:42 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/11 03:35:19 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -380,37 +380,91 @@ void draw_complex_pattern(game_t *asset, mlx_image_t *img, graph_data_t *g)
 
 void positions_of_assets(game_t *asset)
 {
-    asset->setup->data->vp_position_x = asset->cord->cord_x - (asset->setup->data->vp_size / 2);
-    asset->setup->data->vp_position_y = asset->cord->cord_y - (asset->setup->data->vp_size / 2);
+    fprintf(stderr, "adress of asset in positions_of_assets: %p\n", asset);
+    fprintf(stderr, "asset->vp_position_x: %f\n", asset->setup->data->vp_position_x);
+    fprintf(stderr, "asset->vp_position_y: %f\n", asset->setup->data->vp_position_y);
+    fprintf(stderr, "asset->cord->cord_x: %ld\n", asset->cord->cord_x);
+    fprintf(stderr, "asset->cord->cord_y: %ld\n", asset->cord->cord_y);
+    asset->setup->data->vp_position_x = (float )asset->cord->cord_x * asset->setup->data->vp_size /2;
+    asset->setup->data->vp_position_y = (float) asset->cord->cord_y * asset->setup->data->vp_size /2;
+
+    
 }
 
 
 // Update the viewport
 void update_viewport(game_t *asset, double thickness) {
     graph_data_t *g = asset->setup->graph;
-    //assets_t *ass = asset->assets;
 
-    if (asset->setup->image) mlx_delete_image(asset->setup->mlx, asset->setup->image);
+    if (asset->setup->image) {
+        mlx_delete_image(asset->setup->mlx, asset->setup->image);
+    }
+
     asset->setup->image = mlx_new_image(asset->setup->mlx, asset->setup->data->vp_size, asset->setup->data->vp_size);
     if (!asset->setup->image) {
         fprintf(stderr, "Failed to create image\n");
         return;
     }
-//     if (asset == asset->assets->player)
-//    {
-       
-//             positions_of_assets(asset);
-//             draw_complex_pattern(asset, asset->setup->image, g);
-//            mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->cord->cord_x, asset->cord->cord_y);
 
-//    }
+    // Ensure coordinates are valid
+    fprintf(stderr, "Viewport position: (%f, %f)\n",
+            asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
+
+    // Draw assets
+    if (asset == asset->assets->player) {
+        positions_of_assets(asset);
+    }
+
+    draw_complex_pattern(asset, asset->setup->image, g);
+
+    // Place image at the correct coordinates
+    mlx_image_to_window(asset->setup->mlx, asset->setup->image,
+                        asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
+}
+// void update_viewport(game_t *asset, double thickness) {
+//     graph_data_t *g = asset->setup->graph;
+//     //assets_t *ass = asset->assets;
+
+//     if (asset->setup->image) mlx_delete_image(asset->setup->mlx, asset->setup->image);
+//     asset->setup->image = mlx_new_image(asset->setup->mlx, asset->setup->data->vp_size, asset->setup->data->vp_size);
+//     if (!asset->setup->image) {
+//         fprintf(stderr, "Failed to create image\n");
+//         return;
+//     }
+//     // fprintf(stderr, "asset->cord->cord_x: %ld\n", asset->cord->cord_x);
+//     // fprintf(stderr, "asset->cord->cord_y: %ld\n", asset->cord->cord_y);
+    
+//         if (asset->assets->player)
+//         {
+//             draw_complex_pattern(asset, asset->setup->image, g);
+//             positions_of_assets(asset);
+            
+//         //     draw_complex_pattern(asset, asset->setup->image, g);
+
+//         //     mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
+
+//         // }
+//         //             mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
+//         }
+//             mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
+        
+    
+// //     if (asset == asset->assets->player)
+// //    {
+       
+// //             positions_of_assets(asset);
+// //             draw_complex_pattern(asset, asset->setup->image, g);
+// //            mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->cord->cord_x, asset->cord->cord_y);
+
+// //    }
     
     
   
-    draw_complex_pattern(asset, asset->setup->image, g);
+//     // draw_complex_pattern(asset, asset->setup->image, g);
     
-    mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
-}
+//     // mlx_image_to_window(asset->setup->mlx, asset->setup->image, asset->setup->data->vp_position_x, asset->setup->data->vp_position_y);
+        
+// }
 void collectable_animation(game_t *who) 
 {
     static double counter = 0;
@@ -593,10 +647,11 @@ void key_hook(mlx_key_data_t keydata, void *param) {
     game_t *who = (game_t *)param;
     static int thickness = 1;
     complex_data_t *c = who->setup->complex;
+    fprintf(stderr, "who: %p\n", who);
 
     if (keydata.key == MLX_KEY_S) {
         c->wave_amplitude += 2;
-        who->setup->data->vp_position_y += 10;
+     who->setup->data->vp_position_y += 10;
     }
     if (keydata.key == MLX_KEY_W) {
         c->wave_amplitude -= 2;
@@ -611,6 +666,7 @@ void key_hook(mlx_key_data_t keydata, void *param) {
         who->setup->data->vp_position_x -= 10;
     }
   //  fprintf(stderr, "wave_amplitude: %f\n wave_freq: %f\n vp_position_x: %f\n vp_position_y: %f\n", c->wave_amplitude, c->wave_freq, who->setup->data->vp_position_x, who->setup->data->vp_position_y);
+    fprintf(stderr,"who: %p\n", who);
     update_viewport(who, thickness);
 }
 
@@ -672,8 +728,8 @@ void custumize_enemy(game_t *enemy)
 void custumize_player(game_t *player)
 {
     player->setup->complex->variable =  1;
-    player->setup->data->vp_position_x = WINDOW_WIDTH / 2;
-    player->setup->data->vp_position_y = WINDOW_HEIGHT / 2;
+    player->setup->data->vp_position_x = 0;
+    player->setup->data->vp_position_y = 0;
     player->setup->graph->color = 0x00FF7FFF; 
 }
 
@@ -760,25 +816,25 @@ mlx_t *init_mlx_session(int32_t width, int32_t height, char *title)
     return (mlx);
 }
 
-void render(assets_t *assets, map_t *map)
+void render(assets_t *assets)
 {
     update_viewport(assets->player, 1);
-    update_viewport(assets->game, 1);
-    update_viewport(assets->env_back, 1);
-    update_viewport(assets->env_front, 1);
-    update_viewport(assets->colect, 1);
-    update_viewport(assets->enemy, 1);
+    // update_viewport(assets->game, 1);
+    // update_viewport(assets->env_back, 1);
+    // update_viewport(assets->env_front, 1);
+    // update_viewport(assets->colect, 1);
+    // update_viewport(assets->enemy, 1);
     
 }
 
 void event_handler(mlx_key_data_t keydata, void *param)
 {
     int test = 0;
-    assets_t *assets = (assets_t *)param;
+    assets_t *who = (assets_t *)param;
     if (test == 0)
-        key_hook(keydata, assets->player);
+        key_hook(keydata, who->player);
     if (test == 1)
-        key_hooker(keydata, assets->env_back);
+        key_hooker(keydata, who->env_back);
 
     //time_hook(assets->colect);
     
@@ -806,21 +862,28 @@ map_t *load_map(char *path, map_t *map)
     def_map(map);
     fd = open(path, O_RDONLY);
     fprintf(stderr, "fd: %d\n", fd);
-   // map->grid = malloc(sizeof(char *) * (map->rows + 1));
-    // if (map->grid == NULL)
-    // {
-    //     fprintf(stderr, "Failed to allocate memory for map grid\n");
-    //     return NULL;
-    // }
+    fprintf(stderr, "map->walls: %d\n", map->walls);
+    fprintf(stderr, "map->rect: %d\n", map->rect);
+    fprintf(stderr, "map->is_valid: %d\n", map->is_valid);
+//    map->grid = malloc(sizeof(char *) * (map->rows + 1));
+//     if (map->grid == NULL)
+//     {
+//         fprintf(stderr, "Failed to allocate memory for map grid\n");
+//         return NULL;
+//     }
     while ((line = get_next_line(fd)) != NULL)
     {
-        if (line[0])
+        if (line[0] != '\n')
         {
+            
             if (map->cols == 0)
             {
+                fprintf(stderr, "HERE1\n");
+                fprintf(stderr, "1x: %d\n", x);
+                fprintf(stderr, "1y: %d\n", y);
                 map->cols = ft_strlen(line) + 1;
-                fprintf(stderr, "1cols: %ld\n", map->cols);
-                fprintf(stderr, "1rows: %ld\n", map->rows);
+                fprintf(stderr, "1y_cols: %ld\n", map->cols);
+                fprintf(stderr, "1x_rows: %ld\n", map->rows);
                 free(map->grid);
                 map->grid = malloc(sizeof(char *) * (map->cols + 1));
                 if (map->grid == NULL)
@@ -828,80 +891,173 @@ map_t *load_map(char *path, map_t *map)
                     fprintf(stderr, "Failed to allocate memory for map grid 2\n");
                     return NULL;
                 }
+                
                 fprintf(stderr, "cols updated:\n");
+                y = map->cols - 1;
+                fprintf(stderr, "2x: %d\n", x);
+                fprintf(stderr, "2y: %d\n", y);
             }
-            map->grid[x] = line;
-            fprintf(stderr, "x: %d\n", x);
-            x++;
-            map->rows++;
-            map->cols = ft_strlen(line) - 1;
-            fprintf(stderr, "line: %s\n", line);
-            fprintf(stderr, "map->grid: %s\n", map->grid[x - 1]);
-            fprintf(stderr, "2rows: %ld\n", map->rows);
-            fprintf(stderr, "2cols: %ld\n", map->cols);
+            fprintf(stderr, "3x: %d\n", x);
+            fprintf(stderr, "3y: %d\n", y);
 
+            map->grid[x] = line;
+            
+            map->rows = x;
+            
+            
+            
+            map->cols = ft_strlen(line) - 1;
+            fprintf(stderr, "HERE2\n");
+            fprintf(stderr, "line: %s\n", line);
+            fprintf(stderr, "map->grid:[x:%d] %s\n", x, map->grid[x]);
+            fprintf(stderr, "2y_cols: %ld\n", map->cols);
+            fprintf(stderr, "2x_rows: %ld\n", map->rows);
+            fprintf(stderr, "4x: %d\n", x);
+            fprintf(stderr, "4y: %d\n", y);
+            x++;
+            fprintf(stderr, "5x: %d\n", x);
+            fprintf(stderr, "5y: %d\n", y);
+            
         }
         else
         {
             free(line);
+            fprintf(stderr, "6x: %d\n", x);
+            fprintf(stderr, "6y: %d\n", y);
         }
     }
-    fprintf(stderr, "y: %d\n", y);
     map->grid[x] = NULL;
+    fprintf(stderr, "7x: %d\n", x);
+    fprintf(stderr, "7y: %d\n", y);
+    
+    y -= 1;
+    fprintf(stderr, "HERE3\n");
+    fprintf(stderr, "8x: %d\n 8y: %d\n", x, y);
+    map->rows = x;
+    map->cols = y;
+    fprintf(stderr, "map->rows: %ld\n", map->rows);
+    fprintf(stderr, "map->cols: %ld\n", map->cols);
+    // x = 0;
+    // while (map->grid[x] != NULL)
+    // {
+    //     fprintf(stderr, "THISSSSSSSS : map->grid:[x:%d] %s\n", x, map->grid[x]);
+    //     x++;
+    // }
+     fprintf(stderr, "9x: %d\n", x);
+    fprintf(stderr, "9y: %d\n", y);
     close(fd);
     fprintf(stderr, "map load map : %p\n", map);
     return (map);
 }
 void check_walls(map_t *map)
 {
-    int i ;
-    int j ;
-    
-    fprintf(stderr, "check_walls\n");
-   
-    j = 0;
+    size_t i = 0 ;
+    size_t j ;
+    size_t lc;
+    size_t lr;
+    char **grid = map->grid;
+    lc = map->cols ; // -= 1;
+    lr = map->rows ; //-= 1;
+    //map->grid[] -=
+    fprintf(stderr, "_________________________________check_walls\n");
 
-    while (j < map->cols)
+    fprintf(stderr, "map->walls: %d\n", map->walls);
+    fprintf(stderr, "map->rect: %d\n", map->rect);
+    fprintf(stderr, "map->is_valid: %d\n", map->is_valid);
+    
+    fprintf(stderr, "map address: %p\n", map);
+    fprintf(stderr, "map_cols : %ld\n map_rows: %ld\n", map->cols, map->rows);
+    fprintf(stderr, "map->grid[0]: %s\n", map->grid[0]);
+    fprintf(stderr, "map->grid[1]: %s\n", map->grid[1]);
+    fprintf(stderr, "map->grid[2]: %s\n", map->grid[2]);
+    fprintf(stderr, "map->grid[3]: %s\n", map->grid[3]);
+    fprintf(stderr, "map->grid[4]: %s\n", map->grid[4]);
+    fprintf(stderr, "map->grid[5]: %s\n", map->grid[5]);
+
+
+    fprintf(stderr, "map->grid[i - 1]: %s\n", map->grid[map->rows - 1]);
+    // fprintf(stderr, "lr: %ld\nlc: %ld\n", lr, lc);
+    // fprintf(stderr, "map->grid[lr]: %s\n map->grid[lr][lc]: %d\n", map->grid[lr], map->grid[0][lc]);
+   // fprintf
+    i = 0;
+    j = 0;
+    // fprintf(stderr, "map_cols : %ld\n map_rows: %ld\n", map->cols, map->rows);
+    // fprintf(stderr, "map->grid[0][j]: %c\n, map->grid[lr][j]: %c\n", map->grid[0][j], map->grid[lr][j]);
+
+    // fprintf(stderr, "map->grid[0]: %s\n", map->grid[0]);
+    while (j < lc)
     {
+        fprintf(stderr, "1st WHILE\n");
+        fprintf(stderr, "map->grid[0][%ld]: %c\n",j, map->grid[0][j]);
+        // fprintf(stderr, "map->grid[0][j]: %c\n, map->grid[lr][j]: %c\n", map->grid[0][j], map->grid[lr][j]);
         if (map->grid[0][j] != '1' || map->grid[map->rows - 1][j] != '1')
         {
-            fprintf(stderr, "map->grid[0][j]: %c\n", map->grid[0][j]);
+            fprintf(stderr,"error 1st check\n");
             map->walls = 0;
-            fprintf(stderr, "map not valid at position: i: %d j: %d , (ASCII :%d\n",i, j, map->grid[i][j]);
+            fprintf(stderr, "1st_check : map not valid at position: i: %ld j: %ld , (ASCII :%d\n",i, j, map->grid[i][j]);
         }
         
         j++;
     }
     i = 0;
-    while (i < map->rows)
+   // map->grid[i] = map->grid - 1;
+    while (i < lr)
     {
-        if (ft_strlen(map->grid[i] - 1) != map->cols)
+        
+        // fprintf(stderr, "2nd WHILE\n");
+
+        // fprintf(stderr, "len of map->grid[i]: %ld\n", ft_strlen(map->grid[i]));
+        
+        // fprintf(stderr, "map->grid[i] - 1: %s\n", map->grid[i - 1]);
+        // fprintf(stderr, "lc: %ld\n", lc);
+        // fprintf(stderr, "i: %ld\n", i);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "2nd WHILE\n");
+        fprintf(stderr, "map->grid[%ld]: %s\n",i ,map->grid[i]);
+        
+        if ((ft_strlen(map->grid[i])- 1) != lc)
         {
+            fprintf(stderr,"error 2nd check\n");
             map->rect = 0;
-            fprintf(stderr, "1_map len of map->grid[i]: %ld\n", ft_strlen(map->grid[i]));
-            fprintf(stderr, "1_map cols : %ld\n", map->cols);
-            fprintf(stderr, "1_map not valid at position: i: %d j: %d , (ASCII :%d\n",i, j, map->grid[i][j]);
+            
+            
+            fprintf(stderr, "2nd_check : 1_map not valid at position: i: %ld j: %ld , (ASCII :%d\n",i, j, map->grid[i][j]);
         }
+        fprintf(stderr, "3rd CHECK\n");
         if (map->grid[i][0] != '1' || map->grid[i][map->cols - 1] != '1')
         {
-            fprintf(stderr, "map->grid[i][0]: %c\n", map->grid[i][0]);
+            fprintf(stderr,"error 3rd check\n");
             map->walls = 0;
-            fprintf(stderr, "map not valid at position: i: %d j: %d , (ASCII :%d\n",i, j, map->grid[i][j]);
+            //fprintf(stderr, "3rd_check : map not valid at position: i: %ld j: %ld , (ASCII :%d\n",i, j, map->grid[i][j]);
         }
+        fprintf(stderr, "map->grid[%ld][0]: %c\n",i , map->grid[i][0]);
+        fprintf(stderr, "\n");
         i++;
     }
-    fprintf(stderr, "map->grid[7][19]: %c\n", map->grid[7][19]);
+    //fprintf(stderr, "map->grid[7][19]: %c\n", map->grid[7][19]);
     
 }
 void map_checks(map_t *map)
 {
+    fprintf(stderr, "________________________________map_checks\n");
     fprintf(stderr, "map address: %p\n", map);
     size_t i = 0;
     size_t j = 0;
+   size_t lr; 
+   
+   size_t lc;
+    lc = map->cols;
+    lr = map->rows;
+
+    fprintf(stderr, "map->walls: %d\n", map->walls);
+    fprintf(stderr, "map->rect: %d\n", map->rect);
+    fprintf(stderr, "map->is_valid: %d\n", map->is_valid);
+    fprintf(stderr,"map->rows: %ld\n", map->rows);
+    fprintf(stderr,"map->cols: %ld\n", map->cols);
     while (i < map->rows)
     {
         j = 0;
-        fprintf(stderr, "map->rows: %ld\n", map->rows);
+        fprintf(stderr, "map->rows: %ld\n, map->cols: %ld\n", map->rows, map->cols);
         while (j < map->cols)
         {
             
@@ -919,6 +1075,12 @@ void map_checks(map_t *map)
         i++;
     }
     check_walls(map);
+   
+    fprintf(stderr, "map->walls: %d\n", map->walls);
+    fprintf(stderr, "map->rect: %d\n", map->rect);
+    fprintf(stderr, "map->is_valid: %d\n", map->is_valid);
+   // fprintf(stderr, "")
+
     fprintf(stderr, "map walls checked %d\n", map->is_valid);
     fprintf(stderr, "player_count: %d, collectible_count: %d, exit_count: %d\n", map->player_count, map->collectible_count, map->exit_count);
     map->is_valid = (map->player_count == 1) && (map->collectible_count > 0) && (map->exit_count == 1) && (map->walls == 1) && (map->rect == 1);
@@ -947,19 +1109,20 @@ void map_checks(map_t *map)
 // }
 void find_colect_cords(map_t *map)
 {
-
+    fprintf(stderr, "_____________________________________FIND_COLECT_CORDS\n");
     size_t i = 0;
     size_t j = 0;
-    cord_t *new_cord;
+    cord_t *new_cord = NULL;
     int count = map->collectible_count;
     fprintf(stderr, "count: %d\n", count);
-    while (i < map->rows && count > 0)
+    fprintf(stderr, "map->cols : %ld\n, map->rows: %ld\n, map->grid: %p\n", map->cols, map->rows, map->grid);
+    while (i < map->rows && count >= 0)
     {
-        fprintf(stderr, "map->grid[%ld][%ld]: %c\n", i, j, map->grid[i][j]);
+        fprintf(stderr, "map->grid:[i:%ld] %s\n", i, map->grid[i]);
         j = 0;
-        while (j < map->cols && count > 0)
+        while (j < map->cols && count >= 0)
         {
-            fprintf(stderr, "map->grid[%ld][%ld]: %c\n", i, j, map->grid[i][j]);
+            fprintf(stderr, "map->grid:[j:%ld] %c\n", j, map->grid[i][j]);
             if (map->grid[i][j] == 'C')
             {
                 new_cord = init_cord(&map->assets->colect->cord);
@@ -967,7 +1130,7 @@ void find_colect_cords(map_t *map)
                     return;
                 new_cord->cord_x = i;
                 new_cord->cord_y = j;
-                *&map->assets->colect->cord = new_cord;
+                //*&map->assets->colect->cord = new_cord;
                 fprintf(stderr, "YES_colect\n");
                 count--;
                 fprintf(stderr, "count: %d\n", count);
@@ -979,7 +1142,7 @@ void find_colect_cords(map_t *map)
                     return;
                 new_cord->cord_x = i;
                 new_cord->cord_y = j;
-                map->assets->enemy->cord = new_cord;
+                //map->assets->enemy->cord = new_cord;
                 fprintf(stderr, "YES_exit\n");
             }
             else if (map->grid[i][j] == 'P')
@@ -989,7 +1152,7 @@ void find_colect_cords(map_t *map)
                     return;
                 new_cord->cord_x = i;
                 new_cord->cord_y = j;
-                map->assets->player->cord = new_cord;
+               // map->assets->player->cord = new_cord;
                 fprintf(stderr, "YES_player\n");
             }
             else if (map->grid[i][j] == '1')
@@ -999,7 +1162,7 @@ void find_colect_cords(map_t *map)
                     return;
                 new_cord->cord_x = i;
                 new_cord->cord_y = j;
-                map->assets->env_front->cord = new_cord;
+                //map->assets->env_front->cord = new_cord;
                 fprintf(stderr, "YES_env_front\n");
             }
             else if (map->grid[i][j] == '0')
@@ -1009,7 +1172,7 @@ void find_colect_cords(map_t *map)
                     return;
                 new_cord->cord_x = i;
                 new_cord->cord_y = j;
-                map->assets->env_back->cord = new_cord;
+                //map->assets->env_back->cord = new_cord;
                 fprintf(stderr, "YES_env_back\n");
             }
             
@@ -1023,41 +1186,56 @@ void find_colect_cords(map_t *map)
 
 void map_pathfinder(map_t *map) 
 {
-    map->assets->colect->cord = NULL;
-    map->assets->player->cord = NULL;
-    map->assets->enemy->cord = NULL;
-    map->assets->env_back->cord = NULL;
-    map->assets->env_front->cord = NULL;
+   // cord_t *cord;
+    fprintf(stderr, "_____________________________________MAP_PATHFINDER\n");
+
+   
+
+    map->assets->colect->cord = init_cord(&map->assets->colect->cord);
+    map->assets->player->cord = init_cord(&map->assets->player->cord);
+    map->assets->enemy->cord = init_cord(&map->assets->enemy->cord);
+    map->assets->env_back->cord = init_cord(&map->assets->env_back->cord);
+    map->assets->env_front->cord = init_cord(&map->assets->env_front->cord);
     
     fprintf(stderr, "2_cords adress: %p\n", map->assets->player->cord);
     find_colect_cords(map);
-    cord_t *current = map->assets->colect->cord;
-    while (current->next != NULL) {
-    printf("Coordinate_colect: (%ld, %ld)\n", current->cord_x, current->cord_y);
-    current = current->next;
+    cord_t *head_colect = map->assets->colect->cord;
+    cord_t *head_player = map->assets->player->cord;
+    cord_t *head_exit = map->assets->enemy->cord;
+    cord_t *head_env_back = map->assets->env_back->cord;
+    cord_t *head_env_front = map->assets->env_front->cord;
+    fprintf(stderr, "head_colect: %p\n", head_colect);
+    fprintf(stderr, "head_player: %p\n", head_player);
+    fprintf(stderr, "head_exit: %p\n", head_exit);
+    fprintf(stderr, "head_env_back: %p\n", head_env_back);
+    fprintf(stderr, "head_env_front: %p\n", head_env_front);
+
+    cord_t *colect = head_colect;
+    while (colect->next) {
+    printf("Coordinate_colect: (%ld, %ld)\n", colect->cord_x, colect->cord_y);
+    colect = colect->next;
     }
-    cord_t *player = map->assets->player->cord;
-    
+    cord_t *player = head_player;
     while (player->next != NULL) {
     printf("Coordinate_player: (%ld, %ld)\n", player->cord_x, player->cord_y);
     player = player->next;   
     }
-    cord_t *exit = map->assets->enemy->cord;
+    cord_t *exit = head_exit;
     while (exit->next != NULL) {
     printf("Coordinate_exit: (%ld, %ld)\n", exit->cord_x, exit->cord_y);
     exit = exit->next;
     }
-    cord_t *env_back = map->assets->env_back->cord;
+    cord_t *env_back = head_env_back;
     while (env_back->next != NULL) {
     printf("Coordinate_env_back: (%ld, %ld)\n", env_back->cord_x, env_back->cord_y);
     env_back = env_back->next;
     }
-    cord_t *env_front = map->assets->env_front->cord;
+    cord_t *env_front = head_env_front;
     while (env_front->next != NULL) {
     printf("Coordinate_env_front: (%ld, %ld)\n", env_front->cord_x, env_front->cord_y);
     env_front = env_front->next;
 }
-    // find exit cords
+   // find exit cords
     //find player cords
     
 }

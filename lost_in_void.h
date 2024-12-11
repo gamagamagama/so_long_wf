@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 15:29:58 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/09 19:59:54 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/11 02:48:44 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,7 +192,7 @@ void	*ft_memcpy(void *dest, const void *src, size_t n);
 void time_hook( void *param);
 void event_handler(mlx_key_data_t keydata, void *param);
 void  init_structures(mlx_t *mlx);
-void render(assets_t *assets, map_t *map);
+void render(assets_t *assets);
 void free_game(game_t *game);
 void init_complex_var(complex_data_t *complex);
 void init_vp_var(vp_t *vp);

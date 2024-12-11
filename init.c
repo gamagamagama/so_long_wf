@@ -6,7 +6,7 @@
 /*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/08 19:22:39 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/09 21:48:07 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/11 03:45:27 by mgavorni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,8 +78,8 @@ cord_t *init_cord(cord_t **cord)
 
     new_cord->next = *cord;
     *cord = new_cord;
-    new_cord->cord_x = 0;
-    new_cord->cord_y = 0;
+   new_cord->cord_x = -1;
+   new_cord->cord_y = -1;
 
     return new_cord;
 }
@@ -169,6 +169,12 @@ map_t *init_map(mlx_t *mlx, game_t *game ,char *path)
     map->assets->colect->assets = map->assets;
     map->assets->enemy->assets = map->assets;
 
+    map->assets->colect->cord = NULL;
+    map->assets->player->cord = NULL;
+    map->assets->enemy->cord = NULL;
+    map->assets->env_back->cord = NULL;
+    map->assets->env_front->cord = NULL;
+
     map->assets->game->setup->mlx = mlx;
     map->assets->env_back->setup->mlx = mlx;
     map->assets->player->setup->mlx = mlx;
@@ -226,15 +232,15 @@ void init_structures(mlx_t *mlx)
     map = load_map("map.ber", map);
     map_checks(map);
     map_pathfinder(map);
-
-
+  
+   assets = map->assets;
    
-    render(assets, map);
+    render(assets);
 
-    mlx_loop_hook(mlx, time_hook, assets);
+    // mlx_loop_hook(mlx, time_hook, assets);
    
 
-    mlx_key_hook(mlx, event_handler, assets);
+    mlx_key_hook(mlx, event_handler, map);
 
     
     mlx_loop(mlx);
