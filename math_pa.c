@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   math_pa.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 21:38:45 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/11 09:25:01 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/11 10:32:22 by matus            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -382,43 +382,43 @@ void draw_complex_pattern(game_t *asset, mlx_image_t *img, graph_data_t *g)
 double positions_of_assets_X(game_t *asset)
 {
     vp_t *vp = asset->setup->data;
-    float pos_x = vp->vp_position_x;
+    double pos_x = vp->vp_position_x;
 
     fprintf(stderr, "adress of asset in positions_of_assets: %p\n", asset);
     fprintf(stderr, "asset->vp_position_x: %f\n", asset->setup->data->vp_position_x);
     fprintf(stderr, "asset->vp_position_y: %f\n", asset->setup->data->vp_position_y);
-    fprintf(stderr, "asset->cord->cord_x: %ld\n", asset->cord->cord_x);
-    fprintf(stderr, "asset->cord->cord_y: %ld\n", asset->cord->cord_y);
-    pos_x= asset->cord->cord_x * vp->vp_size_x /2;
+    fprintf(stderr, "asset->cord->cord_x: %f\n", asset->cord->cord_x);
+    fprintf(stderr, "asset->cord->cord_y: %f\n", asset->cord->cord_y);
+    pos_x += asset->cord->cord_x;
 
     // = asset->cord->cord_y * vp->vp_size /2;
  //   vp->vp_position_x = pos_x;
    // vp->vp_position_y = pos_y;
 
- asset->setup->data->vp_position_x = pos_x;
- vp->vp_position_x = asset->setup->data->vp_position_x;
+//  asset->setup->data->vp_position_x = pos_x;
+//  vp->vp_position_x = asset->setup->data->vp_position_x;
 return pos_x;
 
 }
 double positions_of_assets_Y(game_t *asset)
 {
     vp_t *vp = asset->setup->data;
-    float pos_y = vp->vp_position_y;
+    double pos_y = vp->vp_position_y;
    
     fprintf(stderr, "adress of asset in positions_of_assets: %p\n", asset);
     fprintf(stderr, "asset->vp_position_x: %f\n", asset->setup->data->vp_position_x);
     fprintf(stderr, "asset->vp_position_y: %f\n", asset->setup->data->vp_position_y);
-    fprintf(stderr, "asset->cord->cord_x: %ld\n", asset->cord->cord_x);
-    fprintf(stderr, "asset->cord->cord_y: %ld\n", asset->cord->cord_y);
-    pos_y= asset->cord->cord_y; // * vp->vp_size /2;
+    fprintf(stderr, "asset->cord->cord_x: %f\n", asset->cord->cord_x);
+    fprintf(stderr, "asset->cord->cord_y: %f\n", asset->cord->cord_y);
+  pos_y += asset->cord->cord_y; // * vp->vp_size /2;
    
     // = asset->cord->cord_y * vp->vp_size /2;
  //   vp->vp_position_x = pos_x;
    // vp->vp_position_y = pos_y;
 
  //asset->setup->data->vp_position_x = pos_x;
-     asset->setup->data->vp_position_y = pos_y;
-     vp->vp_position_y = asset->setup->data->vp_position_y;
+    //  asset->setup->data->vp_position_y = pos_y;
+    //  vp->vp_position_y = asset->setup->data->vp_position_y;
      return pos_y;
 }
 
@@ -428,8 +428,8 @@ void update_viewport(game_t *asset, double thickness) {
 
     vp_t *vp = asset->setup->data;
 
-    float pos_x = vp->vp_position_x;
-    float pos_y = vp->vp_position_y;
+    double pos_x = vp->vp_position_x;
+    double pos_y = vp->vp_position_y;
     mlx_delete_image(asset->setup->mlx, asset->setup->image);
 
 
@@ -452,21 +452,21 @@ void update_viewport(game_t *asset, double thickness) {
         fprintf(stderr, "2Player position: (%f, %f)\n",
             pos_x, pos_y);
       
-    // pos_y =  positions_of_assets_Y(asset);
+    pos_y =  positions_of_assets_Y(asset);
         fprintf(stderr, "3Player position: (%f, %f)\n",
                 pos_x, pos_y);
         draw_complex_pattern(asset, asset->setup->image, g);
         mlx_image_to_window(asset->setup->mlx, asset->setup->image,
                             pos_x, pos_y); 
     }
-    draw_complex_pattern(asset, asset->setup->image, g);
-    mlx_image_to_window(asset->setup->mlx, asset->setup->image,
-                        vp->vp_position_x, vp->vp_position_y);
+    // draw_complex_pattern(asset, asset->setup->image, g);
+    // mlx_image_to_window(asset->setup->mlx, asset->setup->image,
+    //                     vp->vp_position_x, vp->vp_position_y);
        
 //mlx_image_to_window(asset->setup->mlx, asset->setup->image,
                      //   vp->vp_position_x, vp->vp_position_y);
-   vp->vp_position_x = asset->setup->data->vp_position_x;
-vp->vp_position_y = asset->setup->data->vp_position_y;
+//    vp->vp_position_x = asset->setup->data->vp_position_x;
+// vp->vp_position_y = asset->setup->data->vp_position_y;
    
 }
 // void update_viewport(game_t *asset, double thickness) {
@@ -1265,27 +1265,27 @@ void map_pathfinder(map_t *map)
 
     cord_t *colect = head_colect;
     while (colect->next) {
-    printf("Coordinate_colect: (%ld, %ld)\n", colect->cord_x, colect->cord_y);
+    printf("Coordinate_colect: (%f, %f)\n", colect->cord_x, colect->cord_y);
     colect = colect->next;
     }
     cord_t *player = head_player;
     while (player->next != NULL) {
-    printf("Coordinate_player: (%ld, %ld)\n", player->cord_x, player->cord_y);
+    printf("Coordinate_player: (%f, %f)\n", player->cord_x, player->cord_y);
     player = player->next;   
     }
     cord_t *exit = head_exit;
     while (exit->next != NULL) {
-    printf("Coordinate_exit: (%ld, %ld)\n", exit->cord_x, exit->cord_y);
+    printf("Coordinate_exit: (%f, %f)\n", exit->cord_x, exit->cord_y);
     exit = exit->next;
     }
     cord_t *env_back = head_env_back;
     while (env_back->next != NULL) {
-    printf("Coordinate_env_back: (%ld, %ld)\n", env_back->cord_x, env_back->cord_y);
+    printf("Coordinate_env_back: (%f, %f)\n", env_back->cord_x, env_back->cord_y);
     env_back = env_back->next;
     }
     cord_t *env_front = head_env_front;
     while (env_front->next != NULL) {
-    printf("Coordinate_env_front: (%ld, %ld)\n", env_front->cord_x, env_front->cord_y);
+    printf("Coordinate_env_front: (%f, %f)\n", env_front->cord_x, env_front->cord_y);
     env_front = env_front->next;
 }
    // find exit cords

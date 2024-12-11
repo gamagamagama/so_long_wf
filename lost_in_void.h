@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lost_in_void.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgavorni <mgavorni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: matus <matus@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 15:29:58 by mgavorni          #+#    #+#             */
-/*   Updated: 2024/12/11 02:48:44 by mgavorni         ###   ########.fr       */
+/*   Updated: 2024/12/11 10:22:43 by matus            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,8 +155,8 @@ typedef struct map_s
 
 typedef struct cord_s
 {
-	size_t cord_x;
-	size_t cord_y;
+	double cord_x;
+	double cord_y;
 	struct cord_s *next;
 } cord_t;
 
